@@ -1,0 +1,26 @@
+{% extends "bakalari/layout.html" %}
+
+{% block content%}
+<div class="posts">
+    <h1 class="content-subhead">BakaNotifikace</h1>
+    <section class="post">
+        <header class="post-header">
+            <h2 class="post-title">RSS</h2>
+        </header>
+        <div class="post-description">
+            <p>
+                Upozorňování na novinky je důležité, aby bylo multiplatformní. RSS kanály toto splňují a pomocí
+                jednoduchých prográmků můžete vědět o všech důležitých událostech na Bakalářích během několika minut na
+                libovolném zažízení.
+            </p>
+            <p>
+                Na <b>Android</b> mohu doporučit open-source aplikaci <a
+                    href="https://play.google.com/store/apps/details?id=org.indywidualni.fnotifier">fNotifier</a>, která
+                při nových událostech vyhazuje notifikaci. Je spolehlivá a konfigurace je velmi přímočará.
+            </p>
+            <p>Váš soukromý RSS kanál můžete nalézt <a href="{% url 'feed' %}?url={{ url }}&token={{ token }}">zde</a>.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>JSTester Test Editor</title>
+		<script src="libtester.js" type="text/javascript" language="javascript"></script>
+		<script src="FileSaver.js" type="text/javascript" language="javascript"></script>
+		<link rel="stylesheet" type="text/css" href="deprecated-style.css">
+		<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66787500-1', 'auto');
+  ga('send', 'pageview');
+
+	</script>
+		<script>
+			var test = new Test();
+
+			/*
+				Returns dom object of one line in editor
+			*/
+			function createEditorLineElement(id) {
+				//Creating parent element
+				var item = document.createElement("fieldset");
+				item.className = "editorLine";
+				item.id = "item" + id.toString();
+
+				var que = document.createElement("input");
+				que.required = true;
+				que.className = "question editTest";
+				que.id = "question" + id.toString();
+				que.type = "text";
+				que.placeholder = "Otázka"
+				que.onchange = function(event) {
+					test.questions[parseInt(event.target.id.slice(8))].question = event.target.value;
+					test.save();
+				}
+				que.onkeydown = function(event) {
+					keyDownHandler(event);
+				}
+
+				var ans = document.createElement("input");
+				ans.id = "answer" + id.toString();
+				ans.className = "answer editTest";
+				ans.type = "text";
+				ans.required = true;
+				ans.placeholder = "Odpověď";
+				ans.onchange = function(event) {
+					test.questions[parseInt(event.target.id.slice(6))].answer = event.target.value;
+					test.save();
+				}
+				ans.onkeydown = function(event) {
+					keyDownHandler(event);
+				}
+
+				var imgUrl = document.createElement("input");
+				imgUrl.className = "image editTest"
+				imgUrl.id = "image" + id.toString();
+				imgUrl.type = "text";
+				imgUrl.required = true;
+				imgUrl.placeholder = "Obrázek přetáhnout sem";
+				imgUrl.onchange = function(event) {
+					test.questions[parseInt(event.target.id.slice(5))].image = event.target.value;
+					test.save();
+					loadThumbnail(event.target.id.slice(5));
+				}
+				imgUrl.ondrop = function(event) {
+					dropHandler(event);
+					this.onchange(event);
+				}
+				imgUrl.onkeydown = function(event) {
+					keyDownHandler(event);
+				}
+
+				var thumbnail = document.createElement("img");
+				thumbnail.className = "thumbnail";
+				thumbnail.id = "thumbnail" + id.toString();
+
+				item.appendChild(que);
+				item.appendChild(ans);
+				item.appendChild(imgUrl);
+				item.appendChild(thumbnail);
+				return item;
+			}
+
+			/*
+				Empty handler that stops propagation
+			*/
+			function emptyHandler(event) {
+				event.stopPropagation();
+				event.preventDefault();
+			}
+
+			/*
+				Hander for droping images in image area.
+			*/
+			function dropHandler(event) {
+				event.stopPropagation();
+				event.preventDefault();
+				var imageUrl = event.dataTransfer.getData('Text');
+				event.target.value = imageUrl;
+			}
+
+			/*
+				Adds image thumbnail to line in editor. Needs to be called whenever image URL is changed.
+			*/
+			function loadThumbnail(id) {
+				var source = document.getElementById("image"+id);
+				var thumbnail = document.getElementById("thumbnail" + id);
+				thumbnail.src = source.value;
+			}
+
+
+			function cleanView() {
+				document.getElementById('editor').innerHTML = '';
+			}
+
+
+			function keyDownHandler(event) {
+				var id = parseInt(event.target.parentNode.id.slice("item".length));
+				if (event.key == 'Enter') {
+					if (id == test.questions.length-1) {
+						newEditorLine();
+					}
+					document.getElementById("item" + (id+1).toString()).childNodes[0].focus();
+				} else if (event.key == 'Tab' && event.target.className.contains('image')) {
+					event.preventDefault();
+					if (id == test.questions.length-1) {
+						newEditorLine();
+					}
+					document.getElementById("item"+(id+1).toString()).childNodes[0].focus();
+				}
+			}
+
+			/*
+				Loads data from object tester to the view. The view is emptied before the loading
+			*/
+			function load() {
+				cleanView();
+				test.removeEmptyQuestions();
+				var editor = document.getElementById("editor");
+				document.getElementById("description").value = test.description;
+				document.getElementById("name").value = test.topic;
+
+				for (var id = 0;id < test.questions.length; id++) {
+					var item = createEditorLineElement(id);
+					editor.appendChild(item);
+
+					document.getElementById("question"+id.toString()).value = test.questions[id].question;
+					document.getElementById("answer"+id.toString()).value = test.questions[id].answer;
+					document.getElementById("image"+id.toString()).value = test.questions[id].image;
+					if (test.questions[id].image != "" || test.questions[id].image != null) {
+						loadThumbnail(id);
+					}
+				}
+			}
+
+
+			/*
+				Saves on line to the tester object
+			*/
+			function saveLine(domLine) {
+				var i = parseInt(domLine.id);
+				var child;
+				for (var a = 0; a < 3; a++) {
+					child = domLine.childNodes[a];
+					if (child.className == 'question') {
+						test.questions[i].question = child.value;
+					} else if (child.className == 'answer') {
+						test.questions[i].answer = child.value;
+					} else if ( child.className == 'image') {
+						test.questions[i].image = child.value;
+					} else {
+						console.log('Something wierd');
+					}
+				}
+				test.save();
+			}
+
+			function newEditorLine() {
+				var items = document.getElementById("editor");
+				test.questions[test.questions.length] = new Question();
+				items.appendChild(createEditorLineElement(test.questions.length-1));
+			}
+
+			function saveXML(event) {
+				var data = [test.generateXML()];
+				saveAs(new Blob(data,{type:"application/xml;charset=utf-8"}),test.napis + ".xml");
+			}
+
+			function openTest(event) {
+				console.log('openingTest')
+				var testFile = document.getElementById('fileInput').files[0];
+				test = new Test();
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					test.loadXML(reader.result);
+					load();
+				}
+				var xmlDocument = reader.readAsText(testFile,"UTF-8");
+			}
+
+			function nameChangeHandler(event) {
+				test.topic = event.target.value;
+			}
+			function descriptionChangeHandler(event) {
+				test.description = event.target.value;
+			}
+		</script>
+	</head>
+	<body class="editor">
+		<div class="toolbar">
+			<div id="fileSelection" class="toolbarButton">
+				<button>Otevřít test</button>
+				<input type="file" id="fileInput" onchange="openTest(event)"/>
+			</div>
+			<button class="toolbarButton" onclick="test=new Test();test.load();load();">Obnovit stav z minula</button>
+			<button class="toolbarButton" onclick="cleanView();test = new Test();">Odstranit vše</button>
+		</div>
+		<input id="name" type="text" placeholder="Jméno" onchange="nameChangeHandler(event)"/>
+		<textarea id="description" placeholder="Popis" onchange="descriptionChangeHandler(event)"></textarea>
+
+		<form id="editor"></form>
+		<div class="toolbar">
+			<button onclick="newEditorLine()">Přidat otázku</button>
+			<button onclick="load()">Odstranit prázdné řádky</button>
+			<button onclick="saveXML(event)">Generovat XML</button>
+		</div>
+	</body>
+</html>

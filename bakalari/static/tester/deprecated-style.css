@@ -1,0 +1,178 @@
+button {
+  border-style: none;
+  cursor: pointer;
+  background: #CCC;
+  margin: 3px 1px 3px 1px;
+}
+
+.imageCache {
+  opacity: 0.01;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#description, #name {
+  margin-left: 10px;
+  margin-right: 20px;
+  width: 90%;
+  border: 2px;
+  border-style: solid;
+  border-color: #CCC;
+}
+form#editor {
+  width: 90%;
+  margin-left: 10px;
+}
+
+input[type="text"] {
+  border: 1px;
+  border-style: solid;
+  border-color: #CCC;
+  margin: 2px;
+}
+
+.editorLine {
+  margin: 3px 10px 3px 0;
+  padding-bottom: 3px;
+  padding-top: 3px;
+  border: 2px;
+  border-style: solid;
+  border-color: #CCC;
+}
+.editorLine:hover {
+  background: #EEEEEE;
+}
+.thumbnail {
+  vertical-align: middle;
+  height: 1em;
+}
+.thumbnail:hover {
+  width: 15%;
+  height:auto;
+}
+.editTest {
+  width: 25%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 3px;
+  margin-left: 3px;
+}
+
+.editTest:invalid {
+  box-shadow: none;
+  background: #F5BCA9;
+}
+.editTest:valid {
+  background: #CEF6CE;
+}
+.editTest:focus {
+  margin: 0px 1px 0px 1px;
+  border: 3px;
+  border-style: solid;
+  border-color: grey;
+}
+#fileSelection {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  width: auto;
+}
+#fileInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  filter: alpha(opacity=0);
+  overflow: hidden;
+}
+.toolbarButton {
+  float: left;
+  margin-right: 5px;
+}
+.toolbar {
+  padding-top: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  height: auto;
+  overflow: hidden;
+}
+.testResults {
+  list-style: none;
+  margin-left: 10px;
+  text-align: left;
+}
+#spatne, #spravne, #procenta, #celkovy_pocet {
+  font-size: 2em;
+  display: inline;
+  margin-right: 20px;
+}
+#spatne {
+  color: red;
+}
+#spravne {
+  color: green;
+}#procenta {
+  color: blue;
+}
+#celkovy_pocet {
+  font-size: 0.5em;
+}
+.testingPane {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background: #F0F0F0;
+}
+
+.aboutTest {
+  margin-left: 10px;
+}
+.testingArea {
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+body, html {
+  height: 100%;
+  margin: 0;
+}
+body.editor {
+  margin-right: 20px;
+}
+.testImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /*TODO Vyresit velikost maximalni */
+}
+.imageBoundingBox {
+  position: relative;
+  text-align: left;
+  margin: 3px;
+  height: 100%;
+}
+.innerTestingPane {
+  max-width: 800px;
+  min-width: 400px;
+  height: 100%;
+  margin: 0 auto 0 auto;
+  background: #E9E9E9;
+}
+.innerTestingPane::before {
+  content: '';
+  float: left;
+  height: 100%;
+}
+.dynamic::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.static {
+}
+.dynamic {
+}
+p {
+  margin: 0 auto 0 auto;
+}

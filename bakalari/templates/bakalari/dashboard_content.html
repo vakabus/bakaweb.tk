@@ -1,0 +1,38 @@
+<div class="pure-g" style="width:100%">
+    <div class="pure-u-1 pure-u-md-1-2" style="padding-right: 5%">
+        <h2 class="content-subhead">Průměry</h2>
+        <table class="pure-table pure-table-horizontal">
+            <thead>
+            <tr>
+                <th>Předmět</th>
+                <th>Průměr</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for subj, aver in subjects %}
+            <tr>
+                <td><a href="{% url 'subject' subj|slugify %}">{{ subj }}</a></td>
+                <td style="text-align: center">{{ aver }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+    <div class="pure-u-1 pure-u-md-1-2">
+        <h2 class="content-subhead">Novinky (<a href="{% url 'feed' %}?url={{ url }}&token={{ token }}">RSS</a>)</h2>
+        <div class="posts">
+            {% for feeditem in feed %}
+            <section class="feeditem">
+                <header class="feeditem-header">
+                    <h2 class="feeditem-title">{{ feeditem.title }}</h2>
+                </header>
+                <div class="feeditem-description">
+                    <p>
+                        {{ feeditem.text|safe }}
+                    </p>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+    </div>
+</div>

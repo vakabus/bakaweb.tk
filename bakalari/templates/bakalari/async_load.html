@@ -1,0 +1,49 @@
+{% extends "bakalari/layout.html" %}
+
+{% block head %}
+<style>
+.loader {
+  border: 8px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+</style>
+{% endblock%}
+
+
+{% block content %}
+<div id="dashboard-content">
+    <div style="width: 100%;  text-align: center">
+        <div class="loader" style="margin-right: auto; margin-left: auto;"></div>
+        <h3>Povídám si se servery školy. Prosím vyčkejte...</h3>
+    </div>
+    <script>
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                document.getElementById('dashboard-content').innerHTML = xmlHttp.responseText;
+            }
+        }
+        xmlHttp.open("GET", "{{ load_url }}", true); // true for asynchronous
+        xmlHttp.send(null);
+
+
+    </script>
+</div>
+{% endblock %}

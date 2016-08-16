@@ -1,0 +1,179 @@
+<!doctype html>
+
+<html>
+<head>
+    <!-- meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- Material design -->
+    <link href="../mui-0.2.1/css/mui.min.css" rel="stylesheet" type="text/css"/>
+    <script src="../mui-0.2.1/js/mui.min.js"></script>
+
+    <!--<link rel="stylesheet" type="text/css" href="style.css">-->
+
+
+    <title>JSTester</title>
+    <script src="http://code.jquery.com/jquery-2.1.3.js" type="text/javascript" language="javascript"></script>
+    <script src="libtester.min.js" type="text/javascript" language="javascript"></script>
+    <script>
+			var test;
+			function fillStats() {
+				document.getElementById('spravne').innerHTML = test.right;
+				document.getElementById('spatne').innerHTML = test.wrong;
+				document.getElementById('procenta').innerHTML = test.wrong+test.right != 0 ? Math.floor(test.right*10000/(test.right+test.wrong))/100 + "%" : '0%';
+			}
+
+			function setQuestion() {
+				document.getElementById('otazka').innerHTML = test.partialQuestions[test.selected].question;
+			}
+
+			function setImageSrc() {
+				var img = document.getElementById('obrazek');
+				img.src = test.partialQuestions[test.selected].image;
+				//window.scrollTo(0,document.getElementById('obrazek').scrollHeight);
+			}
+
+			function setDescription() {
+				document.getElementById('testDescription').innerHTML = test.description;
+			}
+
+			function setTopic(text) {
+				document.title = 'JSTester | ' + test.topic;
+				document.getElementById('testTopic').innerHTML = test.topic;
+			}
+
+			function openTest(evt) {
+				console.log('openingTest')
+				var testFile = document.getElementById('fileInput').files[0];
+				test = new Test();
+				test.onStatChange = statChange;
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					test.loadXML(reader.result);
+					cacheImages();
+					document.getElementById("celkovy_pocet").innerHTML = (test.questions.length + " otázek");
+
+				}
+				var xmlDocument = reader.readAsText(testFile,"UTF-8");
+			}
+
+			function statChange() {
+				//console.log(test);
+				fillStats();
+				setQuestion();
+				setImageSrc();
+				setDescription();
+				setTopic();
+				test.save();
+			}
+			function cacheImages() {
+				console.log('Loading cache images...');
+				var cache = document.getElementById("cache");
+				for (q = 0; q < test.questions.length; q++) {
+					var img = document.createElement('img');
+					img.setAttribute('src',test.questions[q].image);
+					img.setAttribute('height',"3px");
+					cache.appendChild(img);
+				}
+			}
+			checkLibraries();
+
+
+
+
+    </script>
+    <style>
+			#fileInput {
+		  	position: absolute;
+		  	top: -20px;
+		  	left: -20px;
+		  	margin: 0;
+		  	padding: 0;
+		  	opacity: 0;
+		  	cursor: pointer;
+		  	filter: alpha(opacity=0);
+		  	overflow: hidden;
+				width:auto;
+				height:auto;
+			}
+			#fileSelection {
+			  position: relative;
+			  overflow-x: hidden;
+			  overflow-y: hidden;
+			  width: auto;
+				display: inline;
+			}
+			.imageCache {
+			  opacity: 0.01;
+			  position: absolute;
+			  top: 0;
+			  right: 0;
+			}
+			.testImage {
+			  max-width: 100%;
+			  max-height: 500px;;
+			  object-fit: contain;
+			}
+    </style>
+</head>
+<body>
+<div>
+    <div class="mui-panel mui-container">
+        <div id="cache" class="imageCache"></div>
+        <div class="toolbar">
+            <a href="/static/tester/editor.html" class="mui-btn">Editor testů</a>
+            <div id="fileSelection">
+                <button class="mui-btn">Otevřít test</button>
+                <input type="file" class="mui-btn" id="fileInput" onchange="openTest(event)"/>
+            </div>
+            <button class="mui-btn"
+                    onclick='test = new Test();test.load();test.onStatChange = statChange;statChange();cacheImages();document.getElementById("celkovy_pocet").innerHTML = (test.questions.length + " otázek");'>
+                Pokračovat v posledním otevřeném testu...
+            </button>
+            <button class="mui-btn" onclick="test.fillPartialQuestions();test.wrong = 0; test.right = 0; statChange();">
+                Resetovat počítadlo
+            </button>
+        </div>
+        <div class="mui--text-display3">
+            <span id="spravne" style="color:green;margin-right:1em;">0</span>
+            <span id="spatne" style="color:red;margin-right:1em;">0</span>
+            <span id="procenta" style="color:blue;margin-right:1em;">100%</span>
+            <span id="celkovy_pocet" class="mui-text-display1"></span>
+        </div>
+        <div class='mui-divider' style="margin-top:1em;margin-bottom:1em;"></div>
+        <div class='mui-text-body1'>
+            <div class='mui-row'>
+                <div class='mui-col-md-1'><b>Téma</b></div>
+                <div class='mui-col-md-4' id="testTopic">...</div>
+            </div>
+            <div class='mui-row'>
+                <div class='mui-col-md-1'><b>Popis</b></div>
+                <div class='mui-col-md-4' id="testDescription">...</div>
+            </div>
+        </div>
+    </div>
+    <div class="mui-panel mui-container">
+        <div class="testingArea">
+            <p class='mui-text-headline mui-text-black' id="otazka">Otazka</p>
+            <div class="mui-textfield">
+                <input class='' type="text" id="odpoved"
+                       onkeydown="if (event.keyCode == 13) document.getElementById('odpovedet').click()"
+                       placeholder="Odpověď"/>
+            </div>
+            <button class='mui-btn' id="odpovedet"
+                    onclick="test.answerCurrent(document.getElementById('odpoved').value);document.getElementById('odpoved').select()">
+                Odpovědět!
+            </button>
+        </div>
+        <div class="imageBoundingBox" id="imageBoundingBox">
+            <img class="testImage" id="obrazek"/>
+        </div>
+    </div>
+</div>
+<footer class="mui-container mui-panel mui--text-caption mui--text-black">
+    <div class='mui--text-center'>&copy; 2016 Václav Šraier</div>
+    <div class='mui--text-center'><a href='https://www.muicss.com' target="_blank">MUICSS</a></div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<script>
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+    function update() {
+        var markLines = document.getElementsByClassName('marks');
+        var wsum = 0, mwsum = 0;
+        for (var i = 0; i < markLines.length; i++) {
+            var m = parseFloat(markLines[i].getElementsByClassName('mark')[0].innerHTML.replace('-','.5'));
+            var w = parseInt(markLines[i].getElementsByClassName('weight')[0].innerHTML);
+            if (!isNaN(m)) {
+                wsum += w;
+                mwsum += m*w;
+            }
+        }
+        var m = parseFloat(document.getElementById('new_mark').value.replace('-','.5'));
+        var w = parseInt(document.getElementById('new_weight').value);
+        if (!isNaN(m) && !isNaN(w)) {
+            console.log(m,w);
+            wsum += w;
+            mwsum += m*w;
+        }
+        document.getElementById('average').innerHTML = round(mwsum / wsum, 2);
+    }
+</script>
+<h2>{{ subject.name }}</h2>
+<table class="pure-table">
+    <thead>
+    <tr>
+        <th>Zapsáno</th>
+        <th>Titulek</th>
+        <th>Poznámka</th>
+        <th>Známka</th>
+        <th>Váha</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for mark in subject.marks %}
+    <tr class="marks">
+        <td> {{ mark.date|date:"d.m." }}</td>
+        <td> {{ mark.caption|default:"" }}</td>
+        <td> {{ mark.description|default:"" }}</td>
+        <td class="mark"> {{ mark.mark }}</td>
+        <td class="weight"> {{ mark.weight }}</td>
+        <td onclick="var row = this.parentNode; row.parentNode.removeChild(row); update()">
+            <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="height:1em">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                <path d="M0 0h24v24H0z" fill="none"/>
+            </svg>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="pure-g pure-form" style="margin-top: 1em">
+    <div class="pure-u-1 pure-u-md-1-2 pure-control-group" align="center">
+        <label>Známka</label>
+        <input type='text' id='new_mark' placeholder='Nová známka' onchange='update()'/>
+    </div>
+    <div class="pure-u-1 pure-u-md-1-2 pure-control-group" align="center">
+        <label>Váha</label>
+        <input type='number' min='1' id='new_weight' placeholder='Nová váha' onchange='update()' value='3'/>
+    </div>
+</div>
+<div align="center">
+    <div>
+        <h4>Průměr <span id="average">{{ subject.weighted_average }}</span></h4>
+    </div>
+</div>

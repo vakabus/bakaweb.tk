@@ -1,0 +1,6 @@
+.idea
+db.sqlite3
+__pycache__/
+*.py[cod]
+local_settings.py
+*.swp
