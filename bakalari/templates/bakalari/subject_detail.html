@@ -67,6 +67,6 @@
         }
         document.getElementById('average').innerHTML = round(mwsum / wsum, 2);
     }
-    $('#new_weight').bind('change', function() {update()});
-    $('#new_mark').bind('change', function() {update()});
+    $('#new_weight').on('change', function() {update()});
+    $('#new_mark').on('change', function() {update()});
 </script>
