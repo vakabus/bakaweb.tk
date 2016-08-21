@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ifc6nuidj!+vs46__jz_zfbk0z5=sk*h*!9hun5yro)iq(21&d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.192.26']
@@ -127,3 +127,12 @@ CACHES = {
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+ADMINS = [('Admin', 'bakalari@vakabus.cz')]
+EMAIL_HOST = 'smtp.seznam.cz'
+EMAIL_HOST_USER = 'mail'
+EMAIL_HOST_PASSWORD = 'TxjaEgEJPnYyKHUNOhqU'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+SERVER_EMAIL = 'mail@vakabus.cz'
+
