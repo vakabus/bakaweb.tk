@@ -1,28 +1,3 @@
-<script>
-    function round(value, decimals) {
-        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
-    }
-    function update() {
-        var markLines = document.getElementsByClassName('marks');
-        var wsum = 0, mwsum = 0;
-        for (var i = 0; i < markLines.length; i++) {
-            var m = parseFloat(markLines[i].getElementsByClassName('mark')[0].innerHTML.replace('-','.5'));
-            var w = parseInt(markLines[i].getElementsByClassName('weight')[0].innerHTML);
-            if (!isNaN(m)) {
-                wsum += w;
-                mwsum += m*w;
-            }
-        }
-        var m = parseFloat(document.getElementById('new_mark').value.replace('-','.5'));
-        var w = parseInt(document.getElementById('new_weight').value);
-        if (!isNaN(m) && !isNaN(w)) {
-            console.log(m,w);
-            wsum += w;
-            mwsum += m*w;
-        }
-        document.getElementById('average').innerHTML = round(mwsum / wsum, 2);
-    }
-</script>
 <h2>{{ subject.name }}</h2>
 <table class="pure-table">
     <thead>
@@ -56,11 +31,11 @@
 <div class="pure-g pure-form" style="margin-top: 1em">
     <div class="pure-u-1 pure-u-md-1-2 pure-control-group" align="center">
         <label>Známka</label>
-        <input type='text' id='new_mark' placeholder='Nová známka' onchange='update()'/>
+        <input type='text' id='new_mark' placeholder='Nová známka'/>
     </div>
     <div class="pure-u-1 pure-u-md-1-2 pure-control-group" align="center">
         <label>Váha</label>
-        <input type='number' min='1' id='new_weight' placeholder='Nová váha' onchange='update()' value='3'/>
+        <input type='number' min='1' id='new_weight' placeholder='Nová váha' value='3'/>
     </div>
 </div>
 <div align="center">
@@ -68,3 +43,30 @@
         <h4>Průměr <span id="average">{{ subject.weighted_average }}</span></h4>
     </div>
 </div>
+<script>
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+    function update() {
+        var markLines = document.getElementsByClassName('marks');
+        var wsum = 0, mwsum = 0;
+        for (var i = 0; i < markLines.length; i++) {
+            var m = parseFloat(markLines[i].getElementsByClassName('mark')[0].innerHTML.replace('-','.5'));
+            var w = parseInt(markLines[i].getElementsByClassName('weight')[0].innerHTML);
+            if (!isNaN(m)) {
+                wsum += w;
+                mwsum += m*w;
+            }
+        }
+        var m = parseFloat(document.getElementById('new_mark').value.replace('-','.5'));
+        var w = parseInt(document.getElementById('new_weight').value);
+        if (!isNaN(m) && !isNaN(w)) {
+            console.log(m,w);
+            wsum += w;
+            mwsum += m*w;
+        }
+        document.getElementById('average').innerHTML = round(mwsum / wsum, 2);
+    }
+    $('#new_weight').bind('change', function() {update()});
+    $('#new_mark').bind('change', function() {update()});
+</script>

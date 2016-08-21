@@ -37,7 +37,7 @@
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-                document.getElementById('dashboard-content').innerHTML = xmlHttp.responseText;
+                $('#dashboard-content').html(xmlHttp.responseText);
             } else if (xmlHttp.readyState == 4) {
                 alert('Neco se rozbilo')
             }
