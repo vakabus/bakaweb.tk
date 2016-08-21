@@ -23,7 +23,8 @@ def login(request):
     else:
         form = LoginForm(request.POST)
         if form.is_valid():
-            client = BakaClient(form.cleaned_data['url'])
+            url = form.cleaned_data['url'].replace('bakaweb.tk','bakalari.ceskolipska.cz')
+            client = BakaClient(url)
             try:
                 client.login(form.cleaned_data['username'], form.cleaned_data['password'])
             except (BakalariError, LoginError) as ex:
