@@ -77,6 +77,7 @@
                     </button>
                 </fieldset>
             </form>
+            <script>var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}</script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
             {% endif %}
