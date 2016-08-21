@@ -1,4 +1,5 @@
 import base64
+import logging
 import urllib
 
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -123,7 +124,6 @@ def subject(request, subject_name):
 @vary_on_cookie
 @cache_page(60*2)
 def subject_content(request, subject_name):
-    print('Dashboard content requested: ', request.session['name'])
     if 'token' not in request.session:
         return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
@@ -139,8 +139,6 @@ def subject_content(request, subject_name):
             subject = s
     if subject is None:
         return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
-
-    print('Dashboard content produced...')
 
     for mark in subject.marks:
         mark.weight = mark.get_weight(weights)
