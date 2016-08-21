@@ -38,7 +38,7 @@
         xmlHttp.onreadystatechange = function() {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
                 document.getElementById('dashboard-content').innerHTML = xmlHttp.responseText;
-            } else {
+            } else if (xmlHttp.readyState == 4) {
                 alert('Neco se rozbilo')
             }
         }
