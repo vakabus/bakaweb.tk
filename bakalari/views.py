@@ -23,8 +23,8 @@ def login(request):
     else:
         form = LoginForm(request.POST)
         if form.is_valid():
-            url = form.cleaned_data['url'].replace('bakaweb.tk','bakalari.ceskolipska.cz')
-            client = BakaClient(url)
+            form.cleaned_data['url'] = form.cleaned_data['url'].replace('bakaweb.tk','bakalari.ceskolipska.cz')
+            client = BakaClient(form.cleaned_data['url'])
             try:
                 client.login(form.cleaned_data['username'], form.cleaned_data['password'])
             except (BakalariError, LoginError) as ex:
@@ -90,7 +90,7 @@ def dashboard_content(request):
     except LoginError as er:
         request.session.flush()
         request.session['login_failed'] = True
-        return redirect('index')
+        return HttpResponse('<script>alert("Je nejaky problem s prihlasenim."); window.location.pathname = "/"</script>')
 
     weights = client.get_module('predvidac')
     marks = client.get_module('znamky')
