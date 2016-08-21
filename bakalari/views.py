@@ -1,7 +1,7 @@
 import base64
 import urllib
 
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
@@ -48,7 +48,7 @@ def logout(request):
 
 def index(request):
     context = {
-        'login_failed': bool(request.session.get('login_failed', 'False')),
+        'login_failed': bool(request.session.get('login_failed', False)),
         'logged_in': 'token' in request.session,
         'login_form': LoginForm(),
         'account': {
@@ -65,7 +65,7 @@ def dashboard(request):
         return redirect('index')
 
     context = {
-        'load_url': reverse('dashboard_content'),
+        'load_url': reverse_lazy('dashboard_content'),
         'logged_in': True,
         'account': {
             'name': request.session.get('name', ''),
@@ -110,7 +110,7 @@ def subject(request, subject_name):
         return redirect('index')
 
     context = {
-        'load_url': reverse('subject_content', args=[subject_name]),
+        'load_url': reverse_lazy('subject_content', args=[subject_name]),
         'logged_in': True,
         'account': {
             'name': request.session.get('name', ''),
@@ -123,6 +123,7 @@ def subject(request, subject_name):
 @vary_on_cookie
 @cache_page(60*2)
 def subject_content(request, subject_name):
+    print('Dashboard content requested: ', request.session['name'])
     if 'token' not in request.session:
         return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
@@ -138,6 +139,8 @@ def subject_content(request, subject_name):
             subject = s
     if subject is None:
         return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
+
+    print('Dashboard content produced...')
 
     for mark in subject.marks:
         mark.weight = mark.get_weight(weights)
