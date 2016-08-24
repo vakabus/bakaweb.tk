@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ifc6nuidj!+vs46__jz_zfbk0z5=sk*h*!9hun5yro)iq(21&d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.192.26']
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bakalari.apps.BakalariConfig',
+    'bakabot_fb.apps.BakabotFbConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
