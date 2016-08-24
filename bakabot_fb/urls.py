@@ -18,5 +18,5 @@ from django.conf.urls import url
 from bakabot_fb.views import Bot
 
 urlpatterns = [
-    url(r'^c8555b1d6686f751f/?$', Bot.as_view())
+    url(r'^4db06f6df3537469a5bac821e624ef587b881b4697a303a2bb/?$', Bot.as_view())
 ]
