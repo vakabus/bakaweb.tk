@@ -166,7 +166,7 @@ def notifications(request):
         'token': urllib.parse.quote(request.session['token']),
         'logged_in': True,
         'registered': {
-          'pushbullet': NotificationSubscription.objects.filter(name=request.GET['name'], contact_type='pushbullet').exists(),
+          'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'], contact_type='pushbullet').exists(),
         },
         'account': {
             'name': request.session.get('name', ''),
