@@ -41,7 +41,6 @@ class Command(BaseCommand):
     help = 'Runs BakaNotifications check'
 
     def handle(self, *args, **options):
-        print('Checking news for all subscribers...')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
             print('Checking news for ', subscription.name)
@@ -49,15 +48,12 @@ class Command(BaseCommand):
             client.login(subscription.perm_token)
             news = Feed(client)
 
-            last_date = datetime.now()
-
             for n in news:
                 if n.date < subscription.last_check:
                     break
                 try:
-                    last_date = n.date
                     notify(subscription, n)
                 except RequestException:
-                    break
-            subscription.last_check = last_date
+                    print('Failed to send notification...')
+            subscription.last_check = datetime.now()
             subscription.save()

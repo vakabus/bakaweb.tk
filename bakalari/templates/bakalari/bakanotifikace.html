@@ -33,8 +33,8 @@
                 malým FUPem
                 nebo hodně pomalým internetem.</p>
             <p>Pokud chcete využívat BakaNotifikace přes PushBullet, tak jediné co potřebujete je klíč k API. To je
-                řetězec náhodných znaků, který se dá získat v nastavení. Ten vložte tady dole a pak následujte
-                instrukce.</p>
+                řetězec náhodných znaků, který se dá získat v nastavení na webu. Vytvořite ho stisknutím tlačítka
+                `Create Access Token`. Vložte ho pak dole do formuláře a po odeslání následujte instrukce.</p>
             {% if not registered.pushbullet %}
             <form class="pure-form" action="{% url 'register_pushbullet' %}" method="post">
                 {% csrf_token %}
