@@ -177,6 +177,15 @@ def notifications(request):
 
 
 def notifications_register_pushbullet(request):
+    context = {
+        'logged_in': True,
+        'account': {
+            'name': request.session.get('name', ''),
+            'school': request.session.get('school', '')
+        }
+    }
+
+    # Handle unsubscribe attempts
     if 'unsubscribe' in request.POST:
         NotificationSubscription\
             .objects\
@@ -184,10 +193,12 @@ def notifications_register_pushbullet(request):
             .delete()
         return redirect('notifications')
 
+    # Handle step 1
     if 'token' in request.session and 'apiKey' not in request.GET:
+
         # Send test notification
         url = ''.join([
-            'https://bakaweb.tk',
+            'https://www.bakaweb.tk',
             str(reverse_lazy('register_pushbullet')),
             '?url=',
             urllib.parse.quote(request.session['url'], safe=''),
@@ -208,16 +219,20 @@ def notifications_register_pushbullet(request):
             'Access-Token': request.POST['apiKey'],
             'Content-Type': 'application/json'
         }
+
+        print(url)
+
         try:
             resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))
             resp.raise_for_status()
         except RequestException:
-            return render(request, 'bakalari/pushbullet_registration_failed.html')
+            return render(request, 'bakalari/pushbullet_registration_failed.html', context=context)
 
-        return render(request, 'bakalari/pushbullet_registration_step.html')
-    else:
+        return render(request, 'bakalari/pushbullet_registration_step.html', context=context)
 
-        if NotificationSubscription.objects.filter(name=request.GET['name'], contact_type='pushbullet').exists():
+    # Handle final step
+    if 'url' in request.GET and 'name' in request.GET and 'apiKey' in request.GET and 'token' in request.GET:
+        if not NotificationSubscription.objects.filter(name=request.GET['name'], contact_type='pushbullet').exists():
             ns = NotificationSubscription(
                 url=request.GET['url'],
                 name=request.GET['name'],
@@ -227,4 +242,6 @@ def notifications_register_pushbullet(request):
                 contact_id=request.GET['apiKey']
             )
             ns.save()
-        return render(request, 'bakalari/pushbullet_registration_complete.html')
+        return render(request, 'bakalari/pushbullet_registration_success.html', context=context)
+
+    return redirect('notifications')
