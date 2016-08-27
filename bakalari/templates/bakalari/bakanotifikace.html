@@ -22,6 +22,36 @@
             </p>
         </div>
     </section>
+    <section class="post">
+        <header class="post-header">
+            <h2 class="post-title">PushBullet</h2>
+        </header>
+        <div class="post-description">
+            <p><a href="https://pushbullet.com/">PushBullet</a> je skupina programů umožňující přenos notifikací z
+                mobilu na počítač. Umožňuje ale také posílat notifikace na známá zařízení, čehož BakaNotifikace
+                využívájí. Tato metoda notifikací spotřebovává daleko méně dat než RSS kanál, takže je vhodná pro lidi s
+                malým FUPem
+                nebo hodně pomalým internetem.</p>
+            <p>Pokud chcete využívat BakaNotifikace přes PushBullet, tak jediné co potřebujete je klíč k API. To je
+                řetězec náhodných znaků, který se dá získat v nastavení. Ten vložte tady dole a pak následujte
+                instrukce.</p>
+            {% if not registered.pushbullet %}
+            <form class="pure-form" action="{% url 'register_pushbullet' %}" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <input type="text" name="apiKey" placeholder="API key">
+                    <button type="submit" class="pure-button pure-button-primary">Začít</button>
+                </fieldset>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'register_pushbullet' %}">
+                <input type="hidden" name="unsubscribe" value="1">
+                <button class="pure-button pure-button-primary" type="submit">Odhlásit</button>
+            </form>
+
+            {% endif %}
+        </div>
+    </section>
 </div>
 {% endblock %}
 
