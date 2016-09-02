@@ -86,6 +86,9 @@
                 var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}
 
 
+
+
+
             </script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
@@ -99,10 +102,39 @@
                 <div class="pure-menu pure-menu-horizontal">
                     <ul>
                         <li class="pure-menu-item"><a href="http://purecss.io/" class="pure-menu-link">PureCSS</a></li>
-                        <li class="pure-menu-item"><a class="pure-menu-link">&copy; 2016 Václav Šraier</a></li>
+                        <li class="pure-menu-item"><a id="mailto-link" class="pure-menu-link">&copy; 2016 Václav
+                            Šraier</a></li>
+                        <li class="pure-menu-item"><a href="https://github.com/vakabus/pybakalib"
+                                                      class="pure-menu-link">Based on pybakalib</a>
+                        </li>
                     </ul>
                 </div>
             </div>
+            <script type="text/javascript" language="javascript">
+                <!--
+                // Email obfuscator script 2.1 by Tim Williams, University of Arizona
+                // Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+                // This code is freeware provided these four comment lines remain intact
+                // A wizard to generate this code is at http://www.jottings.com/obfuscator/
+                { coded = "RgyS5b:cgzgJ6c.5z@pgzgcfk.xw"
+                  key = "O2DwHBGjXkpcmyunYoF6gVt74NKI3lWJ0MTP1z9xRqfsvbAiEU5dCearQShZL8"
+                  shift=coded.length
+                  link=""
+                  for (i=0; i<coded.length; i++) {
+                    if (key.indexOf(coded.charAt(i))==-1) {
+                      ltr = coded.charAt(i)
+                      link += (ltr)
+                    }
+                    else {
+                      ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
+                      link += (key.charAt(ltr))
+                    }
+                  }
+                document.getElementById('mailto-link').href = link;
+                }
+                //-->
+
+            </script>
         </div>
     </div>
 </div>
