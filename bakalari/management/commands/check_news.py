@@ -11,6 +11,8 @@ from pybakalib.client import BakaClient
 
 from bakalari.models import NotificationSubscription
 
+import bleach
+
 
 def notify(subscription, feed_item):
     {
@@ -27,7 +29,7 @@ def notify_pushbullet(subscription, feed_item):
     body = {
         'type': 'note',
         'title': feed_item.title,
-        'body': feed_item.text
+        'body': bleach.clean(feed_item.text.replace('<br>', '\n'))
     }
     headers = {
         'Access-Token': api_key,
