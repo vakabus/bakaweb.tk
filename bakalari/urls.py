@@ -28,5 +28,6 @@ urlpatterns = [
     url(r'^feed', newsfeed.RSSFeed(), name='feed'),
     url(r'^notifications$', views.notifications, name='notifications'),
     url(r'^register_pushbullet$', views.notifications_register_pushbullet, name='register_pushbullet'),
+    url(r'^login.aspx$', views.baka_proxy),
     url(r'^', views.index, name='index'),
 ]

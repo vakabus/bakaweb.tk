@@ -1,6 +1,4 @@
-import base64
 import json
-import logging
 import urllib
 from datetime import datetime
 
@@ -240,3 +238,8 @@ def notifications_register_pushbullet(request):
         return render(request, 'bakalari/pushbullet_registration_success.html', context=context)
 
     return redirect('notifications')
+
+
+def baka_proxy(request):
+    resp = requests.get('https://bakalari.ceskolipska.cz/login.aspx', params=request.GET)
+    return HttpResponse(resp.text)
