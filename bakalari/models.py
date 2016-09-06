@@ -10,4 +10,4 @@ class NotificationSubscription(models.Model):
     contact_id = models.CharField(max_length=128)
 
     def __str__(self):
-        return '{}: {} ({})'.format(self.url, self.name, str(self.last_check))
+        return '{} (last check: {})'.format(self.name, self.last_check.strftime('%d.%m. %H:%M:%S'))
