@@ -8,3 +8,6 @@ class NotificationSubscription(models.Model):
     last_check = models.DateTimeField()
     contact_type = models.CharField(max_length=16)
     contact_id = models.CharField(max_length=128)
+
+    def __str__(self):
+        return '{}: {} ({})'.format(self.url, self.name, str(self.last_check))
