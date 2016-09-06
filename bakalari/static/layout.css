@@ -89,6 +89,17 @@ h3 {
     text-decoration: none;
 }
 
+.footer-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.footer-item {
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+}
+
 .content-subhead {
     text-transform: uppercase;
     color: #aaa;
