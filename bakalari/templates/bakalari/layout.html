@@ -41,6 +41,20 @@
                 <h2 class="brand-title" style="font-size: 1.2em">{{ account.name }}</h2>
                 <ul style="list-style-type: none; margin-top: 4px">
                     <li>{{ account.school }}</li>
+                    <li class="nav-item">
+                        <form action="{{ account.login_url }}" method="post">
+                            <input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value=""/>
+                            <input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value=""/>
+                            <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value=""/>
+                            <input name="ctl00$cphmain$Loginname1" type="hidden" value=""/>
+                            <input name="ctl00$cphmain$Loginname2" type="hidden" value=""/>
+                            <input name="ctl00$cphmain$Loginname" type="hidden" value="{{ account.username }}"/>
+                            <input name="ctl00$cphmain$TextBoxHeslo" type="hidden" value="{{ account.password }}"/>
+                            <button name="ctl00$cphmain$ButtonPrihlas" value="Přihlásit" class="pure-button"
+                                    type="submit">Bakaláři
+                            </button>
+                        </form>
+                    </li>
                     <li class="nav-item"><a class="pure-button" href="{% url 'logout' %}">Odhlásit</a></li>
                 </ul>
             </div>
@@ -84,11 +98,6 @@
             </form>
             <script>
                 var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}
-
-
-
-
-
             </script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
@@ -133,7 +142,6 @@
                 document.getElementById('mailto-link').href = link;
                 }
                 //-->
-
             </script>
         </div>
     </div>

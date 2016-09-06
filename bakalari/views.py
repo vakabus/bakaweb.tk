@@ -23,6 +23,21 @@ from bakalari import newsfeed
 from bakalari.forms import LoginForm
 
 
+def get_base_context(request):
+    context = {
+        'login_failed': bool(request.session.get('login_failed', False)),
+        'logged_in': 'token' in request.session,
+        'account': {
+            'name': request.session.get('name', ''),
+            'school': request.session.get('school', ''),
+            'username': request.session.get('username', ''),
+            'password': request.session.get('password', ''),
+            'login_url': urllib.parse.urljoin(request.session.get('url', ''), 'login.aspx')
+        }
+    }
+    return context
+
+
 def login(request):
     if request.method == 'GET':
         return redirect('index')
@@ -42,6 +57,8 @@ def login(request):
             request.session['token'] = client.token_perm
             request.session['name'] = account.name
             request.session['school'] = account.school
+            request.session['password'] = form.cleaned_data['password']
+            request.session['username'] = form.cleaned_data['username']
 
             return redirect('dashboard')
         else:
@@ -55,15 +72,9 @@ def logout(request):
 
 
 def index(request):
-    context = {
-        'login_failed': bool(request.session.get('login_failed', False)),
-        'logged_in': 'token' in request.session,
-        'login_form': LoginForm(),
-        'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', '')
-        }
-    }
+    context = get_base_context(request)
+    context['login_form'] = LoginForm()
+
     request.session['login_failed'] = False
     return render(request, 'bakalari/index.html', context=context)
 
@@ -72,14 +83,11 @@ def dashboard(request):
     if 'token' not in request.session:
         return redirect('index')
 
-    context = {
+    context = get_base_context(request)
+    context.update({
         'load_url': reverse_lazy('dashboard_content'),
-        'logged_in': True,
-        'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', '')
-        }
-    }
+    })
+
     return render(request, 'bakalari/async_load.html', context)
 
 
@@ -118,14 +126,11 @@ def subject(request, subject_name):
     if 'token' not in request.session:
         return redirect('index')
 
-    context = {
-        'load_url': reverse_lazy('subject_content', args=[subject_name]),
-        'logged_in': True,
-        'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', '')
-        }
-    }
+    context = get_base_context(request)
+    context.update({
+        'load_url': reverse_lazy('subject_content', args=[subject_name])
+    })
+
     return render(request, 'bakalari/async_load.html', context)
 
 
@@ -161,29 +166,19 @@ def notifications(request):
     if 'token' not in request.session:
         return redirect('index')
 
-    context = {
+    context = get_base_context(request)
+    context.update({
         'url': urllib.parse.quote(request.session['url']),
         'token': urllib.parse.quote(request.session['token']),
-        'logged_in': True,
         'registered': {
           'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'], contact_type='pushbullet').exists(),
-        },
-        'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', '')
         }
-    }
+    })
     return render(request, 'bakalari/bakanotifikace.html', context)
 
 
 def notifications_register_pushbullet(request):
-    context = {
-        'logged_in': True,
-        'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', '')
-        }
-    }
+    context = get_base_context(request)
 
     # Handle unsubscribe attempts
     if 'unsubscribe' in request.POST:
