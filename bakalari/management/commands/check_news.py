@@ -1,4 +1,5 @@
 import json
+import traceback
 from datetime import datetime
 
 import pytz
@@ -12,6 +13,8 @@ from pybakalib.client import BakaClient
 from bakalari.models import NotificationSubscription
 
 import bleach
+
+from pybakalib.errors import BakalariError
 
 
 def notify(subscription, feed_item):
@@ -45,17 +48,22 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
-            print('Checking news for ', subscription.name)
-            client = BakaClient(subscription.url)
-            client.login(subscription.perm_token)
-            news = Feed(client)
+            try:
+                print('Checking news for ', subscription.name)
+                client = BakaClient(subscription.url)
+                client.login(subscription.perm_token)
+                news = Feed(client)
 
-            for n in news:
-                if n.date < subscription.last_check:
-                    break
-                try:
-                    notify(subscription, n)
-                except RequestException:
-                    print('Failed to send notification...')
-            subscription.last_check = datetime.now()
-            subscription.save()
+                for n in news:
+                    if n.date < subscription.last_check:
+                        break
+                    try:
+                        notify(subscription, n)
+                    except RequestException:
+                        print('Failed to send notification...')
+                subscription.last_check = datetime.now()
+                subscription.save()
+            except BakalariError as e:
+                print('    Failed...')
+                traceback.print_exc()
+                print('')
