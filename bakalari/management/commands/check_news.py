@@ -24,7 +24,7 @@ def notify(subscription, feed_item):
 
 
 def notify_none(subscription, feed_item):
-    print('Unknown contact type: ', subscription.contact_type)
+    print('Unknown contact type:', subscription.contact_type)
 
 
 def notify_pushbullet(subscription, feed_item):
@@ -38,7 +38,7 @@ def notify_pushbullet(subscription, feed_item):
         'Access-Token': api_key,
         'Content-Type': 'application/json'
     }
-    resp = requests.post('https://api.pushbullet.com/v2/pushes',headers=headers, data=json.dumps(body))
+    resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))
     resp.raise_for_status()
 
 
@@ -52,8 +52,15 @@ class Command(BaseCommand):
                 print('Checking news for ', subscription.name)
                 client = BakaClient(subscription.url)
                 client.login(subscription.perm_token)
-                news = Feed(client)
 
+                # Update saved details
+                profile = client.get_module('login')
+                if profile.name != subscription.name:
+                    subscription.name = profile.name
+                    subscription.save()
+
+                # Check for news
+                news = Feed(client)
                 for n in news:
                     if n.date < subscription.last_check:
                         break
