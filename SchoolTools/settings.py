@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bakalari.apps.BakalariConfig',
-    'bakabot_fb.apps.BakabotFbConfig',
 ]
 
 MIDDLEWARE_CLASSES = [

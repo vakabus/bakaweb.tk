@@ -18,6 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^bakabot_fb/', include('bakabot_fb.urls')),
     url(r'^', include('bakalari.urls')),
 ]

@@ -46,6 +46,7 @@ class Command(BaseCommand):
     help = 'Runs BakaNotifications check'
 
     def handle(self, *args, **options):
+        print('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
             try:
@@ -74,3 +75,4 @@ class Command(BaseCommand):
                 print('    Failed...')
                 traceback.print_exc()
                 print('')
+        print('[CHECK ENDED]')
