@@ -1,14 +1,13 @@
 <!doctype html>
 <html>
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>JSTester Test Editor</title>
-		<script src="libtester.js" type="text/javascript" language="javascript"></script>
-		<script src="FileSaver.js" type="text/javascript" language="javascript"></script>
-		<link rel="stylesheet" type="text/css" href="deprecated-style.css">
-		<script>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>JSTester Test Editor</title>
+    <script src="libtester.js" type="text/javascript" language="javascript"></script>
+    <script src="FileSaver.js" type="text/javascript" language="javascript"></script>
+    <link rel="stylesheet" type="text/css" href="deprecated-style.css">
+    <script>
 			var test = new Test();
-
 			/*
 				Returns dom object of one line in editor
 			*/
@@ -181,13 +180,21 @@
 				saveAs(new Blob(data,{type:"application/xml;charset=utf-8"}),test.napis + ".xml");
 			}
 
+			function saveJSON(event) {
+				var data = [test.generateJSON()];
+				saveAs(new Blob(data,{type:"application/json;charset=utf-8"}),test.napis + ".json");
+			}
+
 			function openTest(event) {
 				console.log('openingTest')
 				var testFile = document.getElementById('fileInput').files[0];
 				test = new Test();
 				var reader = new FileReader();
 				reader.onload = function(e) {
-					test.loadXML(reader.result);
+					if (testFile.name.endsWith('xml'))
+						test.loadXML(reader.result);
+					if (testFile.name.endsWith('json'))
+						test.loadJSON(reader.result)
 					load();
 				}
 				var xmlDocument = reader.readAsText(testFile,"UTF-8");
@@ -199,25 +206,26 @@
 			function descriptionChangeHandler(event) {
 				test.description = event.target.value;
 			}
-		</script>
-	</head>
-	<body class="editor">
-		<div class="toolbar">
-			<div id="fileSelection" class="toolbarButton">
-				<button>Otevřít test</button>
-				<input type="file" id="fileInput" onchange="openTest(event)"/>
-			</div>
-			<button class="toolbarButton" onclick="test=new Test();test.load();load();">Obnovit stav z minula</button>
-			<button class="toolbarButton" onclick="cleanView();test = new Test();">Odstranit vše</button>
-		</div>
-		<input id="name" type="text" placeholder="Jméno" onchange="nameChangeHandler(event)"/>
-		<textarea id="description" placeholder="Popis" onchange="descriptionChangeHandler(event)"></textarea>
 
-		<form id="editor"></form>
-		<div class="toolbar">
-			<button onclick="newEditorLine()">Přidat otázku</button>
-			<button onclick="load()">Odstranit prázdné řádky</button>
-			<button onclick="saveXML(event)">Generovat XML</button>
-		</div>
-	</body>
+    </script>
+</head>
+<body class="editor">
+<div class="toolbar">
+    <div id="fileSelection" class="toolbarButton">
+        <button>Otevřít test</button>
+        <input type="file" id="fileInput" onchange="openTest(event)"/>
+    </div>
+    <button class="toolbarButton" onclick="test=new Test();test.load();load();">Obnovit stav z minula</button>
+    <button class="toolbarButton" onclick="cleanView();test = new Test();">Odstranit vše</button>
+</div>
+<input id="name" type="text" placeholder="Jméno" onchange="nameChangeHandler(event)"/>
+<textarea id="description" placeholder="Popis" onchange="descriptionChangeHandler(event)"></textarea>
+
+<form id="editor"></form>
+<div class="toolbar">
+    <button onclick="newEditorLine()">Přidat otázku</button>
+    <button onclick="load()">Odstranit prázdné řádky</button>
+    <button onclick="saveJSON(event)">Generovat test</button>
+</div>
+</body>
 </html>

@@ -25,12 +25,12 @@
 			}
 
 			function setQuestion() {
-				document.getElementById('otazka').innerHTML = test.partialQuestions[test.selected].question;
+				document.getElementById('otazka').innerHTML = test.getSelectedQuestion().question;
 			}
 
 			function setImageSrc() {
 				var img = document.getElementById('obrazek');
-				img.src = test.partialQuestions[test.selected].image;
+				img.src = test.getSelectedQuestion().image;
 				//window.scrollTo(0,document.getElementById('obrazek').scrollHeight);
 			}
 
@@ -47,19 +47,20 @@
 				console.log('openingTest')
 				var testFile = document.getElementById('fileInput').files[0];
 				test = new Test();
-				test.onStatChange = statChange;
 				var reader = new FileReader();
 				reader.onload = function(e) {
-					test.loadXML(reader.result);
+					if (testFile.name.endsWith('xml'))
+						test.loadXML(reader.result);
+					if (testFile.name.endsWith('json'))
+						test.loadJSON(reader.result)
 					cacheImages();
 					document.getElementById("celkovy_pocet").innerHTML = (test.questions.length + " otázek");
-
+					statChange();
 				}
 				var xmlDocument = reader.readAsText(testFile,"UTF-8");
 			}
 
 			function statChange() {
-				//console.log(test);
 				fillStats();
 				setQuestion();
 				setImageSrc();
@@ -112,7 +113,9 @@
 			  max-height: 500px;;
 			  object-fit: contain;
 			}
+
     </style>
+
 </head>
 <body>
 <div>
@@ -127,8 +130,8 @@
                     onclick='test = new Test();test.load();test.onStatChange = statChange;statChange();cacheImages();document.getElementById("celkovy_pocet").innerHTML = (test.questions.length + " otázek");'>
                 Pokračovat v posledním otevřeném testu...
             </button>
-            <button class="mui-btn" onclick="test.fillPartialQuestions();test.wrong = 0; test.right = 0; statChange();">
-                Resetovat počítadlo
+            <button class="mui-btn" onclick="test.fillBuffer();test.wrong = 0; test.right = 0; statChange();">Resetovat
+                počítadlo
             </button>
         </div>
         <div class="mui--text-display3">
@@ -158,7 +161,7 @@
                        placeholder="Odpověď"/>
             </div>
             <button class='mui-btn' id="odpovedet"
-                    onclick="test.answerCurrent(document.getElementById('odpoved').value);document.getElementById('odpoved').select()">
+                    onclick="test.answer(document.getElementById('odpoved').value, statChange);document.getElementById('odpoved').select()">
                 Odpovědět!
             </button>
         </div>
