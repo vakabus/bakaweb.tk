@@ -87,7 +87,7 @@
     <div class="content pure-u-1 pure-u-md-3-4">
         {% if not logged_in %}
         <div>
-            <h1 class="content-subhead">Přihlášení</h1>
+            <h1 class="content-subhead">Přihlášení (<a href="{% url 'privacy_policy' %}">o zpracování osobních údajů</a>)</h1>
             <form class="pure-form" action="{% url 'login' %}" method="post">
                 {% csrf_token %}
                 <fieldset class="pure-g">

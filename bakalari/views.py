@@ -33,6 +33,8 @@ def get_base_context(request):
             'login_url': urllib.parse.urljoin(request.session.get('url', ''), 'login.aspx')
         }
     }
+    if not context['logged_in']:
+        context['login_form'] = LoginForm()
     return context
 
 
@@ -71,7 +73,6 @@ def logout(request):
 
 def index(request):
     context = get_base_context(request)
-    context['login_form'] = LoginForm()
 
     request.session['login_failed'] = False
     return render(request, 'bakalari/index.html', context=context)
@@ -130,6 +131,11 @@ def subject(request, subject_name):
     })
 
     return render(request, 'bakalari/async_load.html', context)
+
+
+@cache_page(60 * 60 * 3)
+def privacy_policy(request):
+    return render(request, 'bakalari/privacy.html', get_base_context(request))
 
 
 @vary_on_cookie
@@ -212,8 +218,6 @@ def notifications_register_pushbullet(request):
             'Access-Token': request.POST['apiKey'],
             'Content-Type': 'application/json'
         }
-
-        print(url)
 
         try:
             resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))

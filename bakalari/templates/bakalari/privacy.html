@@ -1,0 +1,40 @@
+{% extends "bakalari/layout.html" %}
+
+{% block content%}
+<div class="posts">
+    <h1 class="content-subhead">Ochrana osobních údajů</h1>
+    <section class="post">
+        <header class="post-header">
+            <h2 class="post-title">Běžné přihlášení</h2>
+        </header>
+        <div class="post-description">
+            <p>
+                Přihlášením na web předáváte své přihlašovací údaje tomuto serveru. Tyto údaje jsou ukládány pouze
+                dočasně a jsou svázány s cookies ve Vašem prohlížeči. Kliknutím na tlačítko odhlásit se veškeré Vaše
+                přihlašovací údaje smažou.
+            </p>
+            <p>
+                Vyhrazujeme si však právo trvale ukládat záznamy o přístupu, mezi nimiž <b>nejsou</b> žádné citlivé
+                osobní údaje. Toto děláme kvůli analýze návštěvnosti těchto webových stránek a způsobu jejich využívání.
+            </p>
+        </div>
+        <header class="post-header">
+            <h2 class="post-title">BakaNotifikace</h2>
+        </header>
+        <div class="post-description">
+            <p>
+                Vzhledem k tomu, že novinky jsou po registraci na BakaNotifikace kontrolovány serverem, je nutné trvalé
+                uložení přihlašovacích údajů. Hesla nejsou přímo uložena, používáme hash SHA512 na vygenerování
+                přihlašovacího tokenu, kterým dokáží Bakaláři identifikovat přihlašovanou osobu. Tento token není
+                použitelný k přístupu do webového rozhraní Bakalářů, ale dá se s ním dostat ke stejným věcem jako
+                mobilní aplikace na Androidu.
+            </p>
+            <p>
+                Odlášením se z BakaNotifikací se přihlašovací token smaže. Také změnou hesla v systému Bakaláři přestane
+                být token platný.
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
