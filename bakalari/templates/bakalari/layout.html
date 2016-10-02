@@ -70,14 +70,14 @@
                         <a class="pure-button" href="{% url 'dashboard' %}">Přehled</a>
                     </li>
                     <li class="nav-item">
-                        <a class="pure-button" href="{% url 'index' %}">O aplikaci</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="pure-button" href="{% url 'notifications' %}">BakaNotifikace</a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
                         <a class="pure-button" href="{% static 'tester/tester.html' %}">Tester</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="{% url 'index' %}">O aplikaci</a>
                     </li>
                 </ul>
             </nav>
@@ -87,7 +87,8 @@
     <div class="content pure-u-1 pure-u-md-3-4">
         {% if not logged_in %}
         <div>
-            <h1 class="content-subhead">Přihlášení (<a href="{% url 'privacy_policy' %}">o zpracování osobních údajů</a>)</h1>
+            <h1 class="content-subhead">Přihlášení (<a href="{% url 'privacy_policy' %}">o zpracování osobních údajů</a>)
+            </h1>
             <form class="pure-form" action="{% url 'login' %}" method="post">
                 {% csrf_token %}
                 <fieldset class="pure-g">
@@ -98,6 +99,7 @@
             </form>
             <script>
                 var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}
+
             </script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
@@ -114,7 +116,7 @@
                         <li class="footer-item"><a id="mailto-link" class="pure-menu-link">&copy; 2016 Václav
                             Šraier</a></li>
                         <li class="footer-item"><a href="https://github.com/vakabus/pybakalib"
-                                                      class="pure-menu-link">Based on pybakalib</a>
+                                                   class="pure-menu-link">Based on pybakalib</a>
                         </li>
                     </ul>
                 </div>
@@ -142,6 +144,7 @@
                 document.getElementById('mailto-link').href = link;
                 }
                 //-->
+
             </script>
         </div>
     </div>
