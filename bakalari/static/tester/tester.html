@@ -126,6 +126,7 @@
                 <button class="mui-btn">Otevřít test</button>
                 <input type="file" class="mui-btn" id="fileInput" onchange="openTest(event)"/>
             </div>
+            <a class="mui-btn" href="editor.html">Editor</a>
             <button class="mui-btn"
                     onclick='test = new Test();test.load();test.onStatChange = statChange;statChange();cacheImages();document.getElementById("celkovy_pocet").innerHTML = (test.questions.length + " otázek");'>
                 Pokračovat v posledním otevřeném testu...
