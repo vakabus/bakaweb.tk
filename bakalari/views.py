@@ -90,8 +90,8 @@ def dashboard(request):
     return render(request, 'bakalari/async_load.html', context)
 
 
-@vary_on_cookie
 @cache_page(60 * 5)
+@vary_on_cookie
 def dashboard_content(request):
     if 'token' not in request.session:
         return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
@@ -138,8 +138,8 @@ def privacy_policy(request):
     return render(request, 'bakalari/privacy.html', get_base_context(request))
 
 
-@vary_on_cookie
 @cache_page(60 * 2)
+@vary_on_cookie
 def subject_content(request, subject_name):
     if 'token' not in request.session:
         return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
