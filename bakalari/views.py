@@ -72,6 +72,8 @@ def logout(request):
 
 
 def index(request):
+    if 'token' in request.session:
+        return redirect('dashboard')
     context = get_base_context(request)
 
     request.session['login_failed'] = False
