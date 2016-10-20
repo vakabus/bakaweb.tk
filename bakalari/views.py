@@ -20,6 +20,9 @@ from pybakalib.errors import LoginError, BakalariError
 from bakalari import newsfeed
 from bakalari.forms import LoginForm
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def get_base_context(request):
     context = {
@@ -95,32 +98,36 @@ def dashboard(request):
 @cache_page(60 * 5)
 @vary_on_cookie
 def dashboard_content(request):
-    if 'token' not in request.session:
-        return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
-
-    client = BakaClient(request.session['url'])
-
     try:
-        client.login(request.session['token'])
-    except LoginError as er:
-        request.session.flush()
-        request.session['login_failed'] = True
-        return HttpResponse(
-            '<script>alert("Je nejaky problem s prihlasenim."); window.location.pathname = "/"</script>')
+        if 'token' not in request.session:
+            return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
-    weights = client.get_module('predvidac')
-    marks = client.get_module('znamky')
-    subjects = marks.get_all_averages(weights)
+        client = BakaClient(request.session['url'])
 
-    feed = newsfeed.Feed(client)
+        try:
+            client.login(request.session['token'])
+        except LoginError as er:
+            request.session.flush()
+            request.session['login_failed'] = True
+            return HttpResponse(
+                '<script>alert("Je nejaky problem s prihlasenim."); window.location.pathname = "/"</script>')
 
-    context = {
-        'url': urllib.parse.quote(request.session['url']),
-        'token': urllib.parse.quote(request.session['token']),
-        'feed': feed[:10],
-        'subjects': subjects,
-    }
-    return render(request, 'bakalari/dashboard_content.html', context)
+        weights = client.get_module('predvidac')
+        marks = client.get_module('znamky')
+        subjects = marks.get_all_averages(weights)
+
+        feed = newsfeed.Feed(client)
+
+        context = {
+            'url': urllib.parse.quote(request.session['url']),
+            'token': urllib.parse.quote(request.session['token']),
+            'feed': feed[:10],
+            'subjects': subjects,
+        }
+        return render(request, 'bakalari/dashboard_content.html', context)
+    except BakalariError as e:
+        logger.exception("Failed to serve dashboard content.")
+        return render(request, 'bakalari/error.html')
 
 
 def subject(request, subject_name):
@@ -143,29 +150,33 @@ def privacy_policy(request):
 @cache_page(60 * 2)
 @vary_on_cookie
 def subject_content(request, subject_name):
-    if 'token' not in request.session:
-        return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
+    try:
+        if 'token' not in request.session:
+            return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
-    client = BakaClient(request.session['url'])
-    client.login(request.session['token'])
+        client = BakaClient(request.session['url'])
+        client.login(request.session['token'])
 
-    marks = client.get_module('znamky')
-    weights = client.get_module('predvidac')
+        marks = client.get_module('znamky')
+        weights = client.get_module('predvidac')
 
-    subject = None
-    for s in marks:
-        if slugify(s.name) == subject_name:
-            subject = s
-    if subject is None:
-        return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
+        subject = None
+        for s in marks:
+            if slugify(s.name) == subject_name:
+                subject = s
+        if subject is None:
+            return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
 
-    for mark in subject.marks:
-        mark.weight = mark.get_weight(weights)
-    subject.weighted_average = subject.get_weighted_average(weights)
-    context = {
-        'subject': subject,
-    }
-    return render(request, 'bakalari/subject_detail.html', context)
+        for mark in subject.marks:
+            mark.weight = mark.get_weight(weights)
+        subject.weighted_average = subject.get_weighted_average(weights)
+        context = {
+            'subject': subject,
+        }
+        return render(request, 'bakalari/subject_detail.html', context)
+    except BakalariError as e:
+        logger.exception("Failed to server subject detail")
+        return render(request, 'bakalari/error.html')
 
 
 def notifications(request):
