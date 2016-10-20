@@ -72,7 +72,7 @@ def logout(request):
 
 
 def index(request):
-    if 'token' in request.session:
+    if 'token' in request.session and 'force' not in request.GET:
         return redirect('dashboard')
     context = get_base_context(request)
 
