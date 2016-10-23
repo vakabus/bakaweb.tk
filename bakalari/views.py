@@ -13,7 +13,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from requests import RequestException
 
-from bakalari.models import NotificationSubscription
+from bakalari.models import NotificationSubscription, LogSubject, LogUser
 from pybakalib.client import BakaClient
 from pybakalib.errors import LoginError, BakalariError
 
@@ -21,6 +21,7 @@ from bakalari import newsfeed
 from bakalari.forms import LoginForm
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -63,6 +64,15 @@ def login(request):
             request.session['password'] = form.cleaned_data['password']
             request.session['username'] = form.cleaned_data['username']
 
+            # Logging
+            users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
+            if len(users) > 0:
+                users[0].login_count += 1
+                users[0].save()
+            else:
+                LogUser(real_name=request.session['name'], url=request.session['url'],
+                        username=request.session['username'], login_count=1).save()
+
             return redirect('dashboard')
         else:
             request.session['login_failed'] = True
@@ -102,6 +112,12 @@ def dashboard_content(request):
         if 'token' not in request.session:
             return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
+        # Logging
+        users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
+        if len(users) > 0:
+            users[0].dashboard_count += 1
+            users[0].save()
+
         client = BakaClient(request.session['url'])
 
         try:
@@ -125,7 +141,7 @@ def dashboard_content(request):
             'subjects': subjects,
         }
         return render(request, 'bakalari/dashboard_content.html', context)
-    except BakalariError as e:
+    except BaseException as e:
         logger.exception("Failed to serve dashboard content.")
         return render(request, 'bakalari/error.html')
 
@@ -167,6 +183,18 @@ def subject_content(request, subject_name):
         if subject is None:
             return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
 
+        # Logging
+        users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
+        if len(users) > 0:
+            users[0].subject_count += 1
+            users[0].save()
+        s = LogSubject.objects.filter(subject=subject_name)
+        if len(s) > 0:
+            s[0].count += 1
+            s[0].save()
+        else:
+            LogSubject(subject=subject_name, count=1).save()
+
         for mark in subject.marks:
             mark.weight = mark.get_weight(weights)
         subject.weighted_average = subject.get_weighted_average(weights)
@@ -174,7 +202,7 @@ def subject_content(request, subject_name):
             'subject': subject,
         }
         return render(request, 'bakalari/subject_detail.html', context)
-    except BakalariError as e:
+    except BaseException as e:
         logger.exception("Failed to server subject detail")
         return render(request, 'bakalari/error.html')
 
@@ -188,7 +216,8 @@ def notifications(request):
         'url': urllib.parse.quote(request.session['url']),
         'token': urllib.parse.quote(request.session['token']),
         'registered': {
-          'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'], contact_type='pushbullet').exists(),
+            'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'],
+                                                                  contact_type='pushbullet').exists(),
         }
     })
     return render(request, 'bakalari/bakanotifikace.html', context)
@@ -199,9 +228,9 @@ def notifications_register_pushbullet(request):
 
     # Handle unsubscribe attempts
     if 'unsubscribe' in request.POST:
-        NotificationSubscription\
-            .objects\
-            .filter(name=request.session['name'], contact_type='pushbullet')\
+        NotificationSubscription \
+            .objects \
+            .filter(name=request.session['name'], contact_type='pushbullet') \
             .delete()
         return redirect('notifications')
 
