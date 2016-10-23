@@ -1,3 +1,4 @@
+import logging
 import urllib
 
 import bleach as bleach
@@ -5,37 +6,49 @@ from django.contrib.syndication import views
 from django.core.urlresolvers import reverse
 from pybakalib.client import BakaClient
 
+logger = logging.getLogger(__name__)
 
 class Feed(list):
     def __init__(self, client):
         super(Feed, self).__init__()
-        messages = client.get_module('prijate')
-        noticeboard = client.get_module('nastenka')
-        marks = client.get_module('znamky')
 
-        for message in messages:
-            self.append(FeedItem(
-                ''.join(('Zpráva od ', message.sender)),
-                bleach.clean('\n'.join((x for x in (message.title, message.text) if x is not None)),
-                             tags=['b', 'u', 'i', 'a', 'br']),
-                message.date
-            ))
-        for notice in noticeboard:
-            self.append(FeedItem(
-                ''.join(('Zpráva od ', notice.sender)),
-                bleach.clean('\n'.join((x for x in (notice.title, notice.text) if x is not None)),
-                             tags=['b', 'u', 'i', 'a', 'br']),
-                notice.date
-            ))
-        for subj in marks:
-            for mark in subj.get_marks():
+        try:
+            messages = client.get_module('prijate')
+            for message in messages:
                 self.append(FeedItem(
-                    ''.join((subj.abbreviation, ' - ', mark.mark)),
-                    ', '.join((x for x in (mark.caption, mark.description) if x is not None)),
-                    mark.date
+                    ''.join(('Zpráva od ', message.sender)),
+                    bleach.clean('\n'.join((x for x in (message.title, message.text) if x is not None)),
+                                 tags=['b', 'u', 'i', 'a', 'br']),
+                    message.date
                 ))
-        self.sort(key=lambda x: x.date, reverse=True)
+        except NotImplementedError:
+            logger.warn('Server does not support module PRIJATE')
 
+        try:
+            noticeboard = client.get_module('nastenka')
+            for notice in noticeboard:
+                self.append(FeedItem(
+                    ''.join(('Zpráva od ', notice.sender)),
+                    bleach.clean('\n'.join((x for x in (notice.title, notice.text) if x is not None)),
+                                 tags=['b', 'u', 'i', 'a', 'br']),
+                    notice.date
+                ))
+        except NotImplementedError:
+            logger.warning('Server does not support module NASTENKA')
+
+        try:
+            marks = client.get_module('znamky')
+            for subj in marks:
+                for mark in subj.get_marks():
+                    self.append(FeedItem(
+                        ''.join((subj.abbreviation, ' - ', mark.mark)),
+                        ', '.join((x for x in (mark.caption, mark.description) if x is not None)),
+                        mark.date
+                    ))
+        except NotImplementedError:
+            logger.warn('Server does not support module ZNAMKY')
+
+        self.sort(key=lambda x: x.date, reverse=True)
         self.link = client.url
 
 
