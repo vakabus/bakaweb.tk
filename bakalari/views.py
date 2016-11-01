@@ -234,7 +234,7 @@ def notifications_register_pushbullet(request):
             .objects \
             .filter(name=request.session['name'], contact_type='pushbullet') \
             .delete()
-        return render(request, 'bakalari/notifications_unsubscribed.html', context)
+        return render(request, 'bakalari/notifications/notifications_unsubscribed.html', context)
 
     # Handle step 1
     if 'token' in request.session and 'apiKey' not in request.GET:
@@ -267,9 +267,9 @@ def notifications_register_pushbullet(request):
             resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))
             resp.raise_for_status()
         except RequestException:
-            return render(request, 'bakalari/pushbullet_registration_failed.html', context=context)
+            return render(request, 'bakalari/notifications/pushbullet_registration_failed.html', context=context)
 
-        return render(request, 'bakalari/pushbullet_registration_step.html', context=context)
+        return render(request, 'bakalari/notifications/pushbullet_registration_step.html', context=context)
 
     # Handle final step
     if 'url' in request.GET and 'name' in request.GET and 'apiKey' in request.GET and 'token' in request.GET:
@@ -283,7 +283,7 @@ def notifications_register_pushbullet(request):
                 contact_id=request.GET['apiKey']
             )
             ns.save()
-        return render(request, 'bakalari/pushbullet_registration_success.html', context=context)
+        return render(request, 'bakalari/notifications/pushbullet_registration_success.html', context=context)
 
     return redirect('notifications')
 
@@ -322,7 +322,7 @@ def notifications_register_email(request):
                 .objects \
                 .filter(contact_id=data['email'], contact_type='email') \
                 .delete()
-        return render(request, 'bakalari/notifications_unsubscribed.html', get_base_context(request))
+        return render(request, 'bakalari/notifications/notifications_unsubscribed.html', get_base_context(request))
 
     if 'email' in data and 'token' in request.session and 'token' not in data:
         try:
@@ -333,9 +333,9 @@ def notifications_register_email(request):
                 .format(u(data['email']), u(request.session['url']), u(request.session['name']),
                         u(request.session['token']))
             )
-            return render(request, 'bakalari/email_registration_step.html', get_base_context(request))
+            return render(request, 'bakalari/notifications/email_registration_step.html', get_base_context(request))
         except RequestException:
-            return render(request, 'bakalari/email_registration_failed.html', get_base_context(request))
+            return render(request, 'bakalari/notifications/email_registration_failed.html', get_base_context(request))
 
     if sum([1 for x in ['token', 'url', 'name', 'email'] if x in data]) == 4:
         if not NotificationSubscription.objects.filter(name=request.GET['name'], contact_type='email').exists():
@@ -348,7 +348,7 @@ def notifications_register_email(request):
                 contact_id=request.GET['email']
             )
             ns.save()
-        return render(request, 'bakalari/email_registration_success.html', context=get_base_context(request))
+        return render(request, 'bakalari/notifications/email_registration_success.html', context=get_base_context(request))
 
     return redirect('notifications')
 
