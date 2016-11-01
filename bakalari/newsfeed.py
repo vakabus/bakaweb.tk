@@ -1,5 +1,4 @@
 import logging
-import urllib
 
 import bleach as bleach
 from django.contrib.syndication import views
@@ -7,6 +6,7 @@ from django.core.urlresolvers import reverse
 from pybakalib.client import BakaClient
 
 logger = logging.getLogger(__name__)
+
 
 class Feed(list):
     def __init__(self, client):
@@ -22,7 +22,7 @@ class Feed(list):
                     message.date
                 ))
         except NotImplementedError:
-            logger.warn('Server does not support module PRIJATE')
+            logger.warning('Server does not support module PRIJATE')
 
         try:
             noticeboard = client.get_module('nastenka')
@@ -79,6 +79,9 @@ class RSSFeed(views.Feed):
 
     def item_link(self, item):
         return reverse('index')
+
+    def item_pubdate(self, item):
+        return item.date
 
     def link(self, obj):
         return obj.link
