@@ -15,10 +15,16 @@ class Feed(list):
         try:
             messages = client.get_module('prijate')
             for message in messages:
+                text = bleach.clean('\n'.join((x for x in (message.title, message.text) if x is not None)),
+                                    tags=['b', 'u', 'i', 'a', 'br'])
+                if message.has_attachment:
+                    text += '</br></br>-------------------</br>Odesílatel ke zprávě připojil přílohu.' \
+                            ' Pro její zobrazení se prosím přihlašte do webového rozhraní Bakalářů.'
+                    text += '</br><a href="{}">{}</a>'.format(client.url, client.url)
+
                 self.append(FeedItem(
                     ''.join(('Zpráva od ', message.sender)),
-                    bleach.clean('\n'.join((x for x in (message.title, message.text) if x is not None)),
-                                 tags=['b', 'u', 'i', 'a', 'br']),
+                    text,
                     message.date
                 ))
         except NotImplementedError:
