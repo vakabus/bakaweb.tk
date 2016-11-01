@@ -234,7 +234,7 @@ def notifications_register_pushbullet(request):
             .objects \
             .filter(name=request.session['name'], contact_type='pushbullet') \
             .delete()
-        return redirect('notifications')
+        return render(request, 'bakalari/notifications_unsubscribed.html', context)
 
     # Handle step 1
     if 'token' in request.session and 'apiKey' not in request.GET:
@@ -322,7 +322,7 @@ def notifications_register_email(request):
                 .objects \
                 .filter(contact_id=data['email'], contact_type='email') \
                 .delete()
-        return redirect('notifications')
+        return render(request, 'bakalari/notifications_unsubscribed.html', get_base_context(request))
 
     if 'email' in data and 'token' in request.session and 'token' not in data:
         try:
