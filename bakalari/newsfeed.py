@@ -84,7 +84,7 @@ class RSSFeed(views.Feed):
         return item.text
 
     def item_link(self, item):
-        return reverse('index')
+        return "https://www.bakaweb.tk/"
 
     def item_pubdate(self, item):
         return item.date
