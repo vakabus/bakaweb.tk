@@ -2,3 +2,5 @@ requests
 bleach
 django
 pybakalib
+xmltodict
+pytz

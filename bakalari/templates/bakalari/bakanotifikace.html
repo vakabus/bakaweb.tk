@@ -52,6 +52,31 @@
             {% endif %}
         </div>
     </section>
+    <section class="post">
+        <header class="post-header">
+            <h2 class="post-title">Email</h2>
+        </header>
+        <div class="post-description">
+            <p>Jednoduchost především. U emailu není nutné nic složitého nastavovat, stačí se jen zaregistrovat a vše by
+                mělo fungovat bez větších komplikací.</p>
+            {% if not registered.email %}
+            <form class="pure-form" action="{% url 'register_email' %}" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <input type="text" name="email" placeholder="Email">
+                    <button type="submit" class="pure-button pure-button-primary">Začít</button>
+                </fieldset>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'register_email' %}">
+                {% csrf_token %}
+                <input type="hidden" name="unsubscribe" value="1">
+                <button class="pure-button pure-button-primary" type="submit">Odhlásit</button>
+            </form>
+
+            {% endif %}
+        </div>
+    </section>
 </div>
 {% endblock %}
 

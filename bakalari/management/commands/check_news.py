@@ -5,6 +5,7 @@ from datetime import datetime
 import pytz
 import requests
 from django.core.management import BaseCommand
+from django.urls import reverse_lazy
 from requests import RequestException
 
 from bakalari.newsfeed import Feed
@@ -20,6 +21,7 @@ from pybakalib.errors import BakalariError
 def notify(subscription, feed_item):
     {
         'pushbullet': notify_pushbullet,
+        'email': notify_email,
     }.get(subscription.contact_type, notify_none)(subscription, feed_item)
 
 
@@ -39,6 +41,25 @@ def notify_pushbullet(subscription, feed_item):
         'Content-Type': 'application/json'
     }
     resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))
+    resp.raise_for_status()
+
+
+def notify_email(subscription, feed_item):
+    email = subscription.contact_id
+    url = 'https://api.mailgun.net/v3/mg.bakaweb.tk/messages'
+    unsubscribe_url = 'https://www.bakaweb.tk{}?unsubscribe=1&email={}'.format(str(reverse_lazy('register_email')),
+                                                                               email)
+    data = {
+        'from': 'Bakaweb.tk <noreply@bakaweb.tk>',
+        'to': email,
+        'subject': '[BAKAWEB.TK] {}'.format(feed_item.title),
+        'text': '{}\n\nOdhlašte se z těchto zpráv kliknutím na tento odkaz:\n{}'.format(
+            bleach.clean(feed_item.text.replace('<br>', '\n')), unsubscribe_url),
+        'html': '{}</br><hr></br>Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů přes server bakaweb.tk. Pro odhlášení klikňete <a href="{}">zde</a>.'.format(
+            feed_item.text,
+            unsubscribe_url)
+    }
+    resp = requests.post(url, data=data, auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b'))
     resp.raise_for_status()
 
 

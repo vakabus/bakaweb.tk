@@ -218,6 +218,8 @@ def notifications(request):
         'registered': {
             'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'],
                                                                   contact_type='pushbullet').exists(),
+            'email': NotificationSubscription.objects.filter(name=request.session['name'],
+                                                             contact_type='email').exists(),
         }
     })
     return render(request, 'bakalari/bakanotifikace.html', context)
@@ -282,6 +284,71 @@ def notifications_register_pushbullet(request):
             )
             ns.save()
         return render(request, 'bakalari/pushbullet_registration_success.html', context=context)
+
+    return redirect('notifications')
+
+
+def notifications_register_email(request):
+    def send(email, link):
+        url = 'https://api.mailgun.net/v3/mg.bakaweb.tk/messages'
+        data = {
+            'from': 'Bakaweb.tk <noreply@bakaweb.tk>',
+            'to': email,
+            'subject': '[BAKAWEB.TK] Registrace',
+            'text': 'Registrace na emailové notifikace\n=================================\n\nPro dokončení registrace prosím klidněte zde:\n{}'.format(
+                link),
+            'html': '<h1>Registrace na emailové notifikace</h1><p>Pro dokončení registrace prosím klikněte na odkaz níže:</p><p><a href="{}">{}</a></p>'.format(
+                link, link)
+        }
+        resp = requests.post(url, data=data, auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b'))
+        resp.raise_for_status()
+
+    data = None
+    if request.method == 'POST':
+        data = request.POST
+    elif request.method == 'GET':
+        data = request.GET
+    else:
+        return render(request, 'bakalari/error.html', status=404)
+
+    if 'unsubscribe' in data:
+        if 'token' in request.session:
+            NotificationSubscription \
+                .objects \
+                .filter(name=request.session['name'], contact_type='email') \
+                .delete()
+        else:
+            NotificationSubscription \
+                .objects \
+                .filter(contact_id=data['email'], contact_type='email') \
+                .delete()
+        return redirect('notifications')
+
+    if 'email' in data and 'token' in request.session and 'token' not in data:
+        try:
+            u = urllib.parse.quote
+            send(
+                data['email'],
+                'https://www.bakaweb.tk' + str(reverse_lazy('register_email')) + '?email={}&url={}&name={}&token={}'
+                .format(u(data['email']), u(request.session['url']), u(request.session['name']),
+                        u(request.session['token']))
+            )
+            return render(request, 'bakalari/email_registration_step.html', get_base_context(request))
+        except RequestException:
+            return render(request, 'bakalari/email_registration_failed.html', get_base_context(request))
+
+    if sum([1 for x in ['token', 'url', 'name', 'email'] if x in data]) == 4:
+        if not NotificationSubscription.objects.filter(name=request.GET['name'], contact_type='email').exists():
+            ns = NotificationSubscription(
+                url=request.GET['url'],
+                name=request.GET['name'],
+                perm_token=request.GET['token'],
+                last_check=datetime.now(),
+                contact_type='email',
+                contact_id=request.GET['email']
+            )
+            ns.save()
+        return render(request, 'bakalari/email_registration_success.html', context=get_base_context(request))
 
     return redirect('notifications')
 
