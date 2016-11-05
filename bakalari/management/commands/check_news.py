@@ -2,7 +2,7 @@ import json
 import traceback
 from datetime import datetime
 
-import pytz
+import bakalari.email as email_data
 import requests
 from django.core.management import BaseCommand
 from django.urls import reverse_lazy
@@ -18,18 +18,18 @@ import bleach
 from pybakalib.errors import BakalariError
 
 
-def notify(subscription, feed_item):
+def notify(client, subscription, feed_item):
     {
         'pushbullet': notify_pushbullet,
         'email': notify_email,
-    }.get(subscription.contact_type, notify_none)(subscription, feed_item)
+    }.get(subscription.contact_type, notify_none)(client, subscription, feed_item)
 
 
-def notify_none(subscription, feed_item):
+def notify_none(client: BakaClient, subscription: NotificationSubscription, feed_item):
     print('Unknown contact type:', subscription.contact_type)
 
 
-def notify_pushbullet(subscription, feed_item):
+def notify_pushbullet(client: BakaClient, subscription: NotificationSubscription, feed_item):
     api_key = subscription.contact_id
     body = {
         'type': 'note',
@@ -44,21 +44,13 @@ def notify_pushbullet(subscription, feed_item):
     resp.raise_for_status()
 
 
-def notify_email(subscription, feed_item):
+def notify_email(client: BakaClient, subscription: NotificationSubscription, feed_item):
     email = subscription.contact_id
     url = 'https://api.mailgun.net/v3/mg.bakaweb.tk/messages'
-    unsubscribe_url = 'https://www.bakaweb.tk{}?unsubscribe=1&email={}'.format(str(reverse_lazy('register_email')),
-                                                                               email)
-    data = {
-        'from': 'Bakaweb.tk <noreply@bakaweb.tk>',
-        'to': email,
-        'subject': '[BAKAWEB.TK] {}'.format(feed_item.title),
-        'text': '{}\n\nOdhlašte se z těchto zpráv kliknutím na tento odkaz:\n{}'.format(
-            bleach.clean(feed_item.text.replace('<br>', '\n')), unsubscribe_url),
-        'html': '{}</br><hr></br>Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů přes server bakaweb.tk. Pro odhlášení klikňete <a href="{}">zde</a>.'.format(
-            feed_item.text,
-            unsubscribe_url)
-    }
+    unsubscribe_url = 'https://www.bakaweb.tk{}?unsubscribe=1&email={}'.format(str(reverse_lazy('register_email')), email)
+
+    data = email_data.notification_email_data(email, subscription.name, feed_item, unsubscribe_url, None)
+
     resp = requests.post(url, data=data, auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b'))
     resp.raise_for_status()
 
@@ -87,7 +79,7 @@ class Command(BaseCommand):
                     if n.date < subscription.last_check:
                         break
                     try:
-                        notify(subscription, n)
+                        notify(client, subscription, n)
                     except RequestException:
                         print('Failed to send notification...')
                 subscription.last_check = datetime.now()

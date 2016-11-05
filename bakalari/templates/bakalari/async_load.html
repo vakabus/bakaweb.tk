@@ -41,8 +41,8 @@
         xmlHttp.onreadystatechange = function() {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
                 $('#dashboard-content').html(xmlHttp.responseText);
-            } else if (xmlHttp.readyState == 4) {
-                alert('Neco se rozbilo')
+            } else if (xmlHttp.readyState == 4 && xmlHttp.status != 0) {
+                $('#dashboard-content').html('<h2>Nepodařilo se načíst obsah</h2>')
             }
         }
         xmlHttp.open("GET", "{{ load_url }}", true); // true for asynchronous
