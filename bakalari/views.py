@@ -13,6 +13,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from requests import RequestException
 
+from bakalari.crypto import decrypt, encrypt
 from bakalari.models import NotificationSubscription, LogSubject, LogUser
 from pybakalib.client import BakaClient
 from pybakalib.errors import LoginError, BakalariError
@@ -42,38 +43,76 @@ def get_base_context(request):
     return context
 
 
+def login_handle(request, url, username=None, password=None, perm_token:str=None):
+    url = url.replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
+    client = BakaClient(url)
+    try:
+        if perm_token is not None:
+            client.login(perm_token)
+            username = perm_token[7:perm_token.find('*', 7)]
+        else:
+            client.login(username, password)
+    except (BakalariError, LoginError):
+        logger.exception('Login failed...')
+        request.session['login_failed'] = True
+        return redirect('index')
+
+    account = client.get_module('login')
+    request.session['url'] = url
+    request.session['token'] = client.token_perm
+    request.session['name'] = account.name
+    request.session['school'] = account.school
+    request.session['password'] = password
+    request.session['username'] = username
+
+    # Logging
+    users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
+    if len(users) > 0:
+        users[0].login_count += 1
+        users[0].save()
+    else:
+        LogUser(real_name=request.session['name'], url=request.session['url'],
+                username=request.session['username'], login_count=1).save()
+
+    return redirect('dashboard')
+
+
+def login_perm_create(url: str, perm_token: str) -> str:
+    def prep(s):
+        return s.replace('|', "?%")
+
+    s = "{}|{}".format(prep(url), prep(perm_token))
+    return 'https://www.bakaweb.tk/login/?d=' + encrypt(s)
+
+
+def login_perm_parse(b64: str) -> tuple:
+    def p(s):
+        return s.replace('?%', '|')
+
+    s = decrypt(b64)
+    r = s.split('|')
+    return p(r[0]), p(r[1])
+
+
 def login(request):
     if request.method == 'GET':
+        if 'd' in request.GET:
+            try:
+                url, perm_token = login_perm_parse(request.GET['d'])
+            except Exception:
+                logger.exception("Failed to parse perm login data...")
+                return redirect('index')
+            return login_handle(request, url, None, None, perm_token=perm_token)
+
         return redirect('index')
     else:
         form = LoginForm(request.POST)
         if form.is_valid():
-            form.cleaned_data['url'] = form.cleaned_data['url'].replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
-            client = BakaClient(form.cleaned_data['url'])
-            try:
-                client.login(form.cleaned_data['username'], form.cleaned_data['password'])
-            except (BakalariError, LoginError) as ex:
-                request.session['login_failed'] = True
-                return redirect('index')
-
-            account = client.get_module('login')
-            request.session['url'] = form.cleaned_data['url']
-            request.session['token'] = client.token_perm
-            request.session['name'] = account.name
-            request.session['school'] = account.school
-            request.session['password'] = form.cleaned_data['password']
-            request.session['username'] = form.cleaned_data['username']
-
-            # Logging
-            users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
-            if len(users) > 0:
-                users[0].login_count += 1
-                users[0].save()
-            else:
-                LogUser(real_name=request.session['name'], url=request.session['url'],
-                        username=request.session['username'], login_count=1).save()
-
-            return redirect('dashboard')
+            return login_handle(request,
+                                form.cleaned_data['url'],
+                                form.cleaned_data['username'],
+                                form.cleaned_data['password']
+                                )
         else:
             request.session['login_failed'] = True
             return redirect('index')
@@ -348,7 +387,8 @@ def notifications_register_email(request):
                 contact_id=request.GET['email']
             )
             ns.save()
-        return render(request, 'bakalari/notifications/email_registration_success.html', context=get_base_context(request))
+        return render(request, 'bakalari/notifications/email_registration_success.html',
+                      context=get_base_context(request))
 
     return redirect('notifications')
 

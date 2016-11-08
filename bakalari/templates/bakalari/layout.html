@@ -37,6 +37,7 @@
                 <h2 class="brand-title" style="font-size: 1.2em">{{ account.name }}</h2>
                 <ul style="list-style-type: none; margin-top: 4px">
                     <li>{{ account.school }}</li>
+                    {% if account.password != None and account.password != "" %}
                     <li class="nav-item">
                         <form action="{{ account.login_url }}" method="post">
                             <input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value=""/>
@@ -51,6 +52,7 @@
                             </button>
                         </form>
                     </li>
+                    {% endif %}
                     <li class="nav-item"><a class="pure-button" href="{% url 'logout' %}">Odhlásit</a></li>
                 </ul>
             </div>

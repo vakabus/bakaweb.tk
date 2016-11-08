@@ -8,6 +8,7 @@ from django.core.management import BaseCommand
 from django.urls import reverse_lazy
 from requests import RequestException
 
+from bakalari import views
 from bakalari.newsfeed import Feed
 from pybakalib.client import BakaClient
 
@@ -48,8 +49,9 @@ def notify_email(client: BakaClient, subscription: NotificationSubscription, fee
     email = subscription.contact_id
     url = 'https://api.mailgun.net/v3/mg.bakaweb.tk/messages'
     unsubscribe_url = 'https://www.bakaweb.tk{}?unsubscribe=1&email={}'.format(str(reverse_lazy('register_email')), email)
+    login_url = views.login_perm_create(subscription.url, subscription.perm_token)
 
-    data = email_data.notification_email_data(email, subscription.name, feed_item, unsubscribe_url, None)
+    data = email_data.notification_email_data(email, subscription.name, feed_item, unsubscribe_url, None, login_url)
 
     resp = requests.post(url, data=data, auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b'))
     resp.raise_for_status()
