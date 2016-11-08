@@ -82,7 +82,7 @@ def login_perm_create(url: str, perm_token: str) -> str:
         return s.replace('|', "?%")
 
     s = "{}|{}".format(prep(url), prep(perm_token))
-    return 'https://www.bakaweb.tk/login/?d=' + encrypt(s)
+    return 'https://www.bakaweb.tk/login/?d=' + urllib.parse.quote(encrypt(s))
 
 
 def login_perm_parse(b64: str) -> tuple:
