@@ -2,6 +2,8 @@ import json
 import traceback
 from datetime import datetime
 
+import logging
+
 import bakalari.email as email_data
 import requests
 from django.core.management import BaseCommand
@@ -57,15 +59,18 @@ def notify_email(client: BakaClient, subscription: NotificationSubscription, fee
     resp.raise_for_status()
 
 
+logger = logging.getLogger(__name__)
+
+
 class Command(BaseCommand):
     help = 'Runs BakaNotifications check'
 
     def handle(self, *args, **options):
-        print('[BAKANEWS CHECK STARTED]')
+        logger.info('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
             try:
-                print('Checking news for ', subscription.name)
+                logger.info('Checking news for ', subscription.name)
                 client = BakaClient(subscription.url)
                 client.login(subscription.perm_token)
 
@@ -83,11 +88,9 @@ class Command(BaseCommand):
                     try:
                         notify(client, subscription, n)
                     except RequestException:
-                        print('Failed to send notification...')
+                        logger.info('Failed to send notification...')
                 subscription.last_check = datetime.now()
                 subscription.save()
             except BakalariError as e:
-                print('    Failed...')
-                traceback.print_exc()
-                print('')
+                logger.exception('Failed...')
         print('[CHECK ENDED]')

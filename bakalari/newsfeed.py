@@ -52,7 +52,7 @@ class Feed(list):
                         mark.date
                     ))
         except NotImplementedError:
-            logger.warninig('Server does not support module ZNAMKY')
+            logger.warning('Server does not support module ZNAMKY')
 
         self.sort(key=lambda x: x.date, reverse=True)
         self.link = client.url

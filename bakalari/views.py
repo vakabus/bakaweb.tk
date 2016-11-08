@@ -95,6 +95,9 @@ def login_perm_parse(b64: str) -> tuple:
 
 
 def login(request):
+    if 'token' in request.session:
+        return redirect('dashboard')
+
     if request.method == 'GET':
         if 'd' in request.GET:
             try:
