@@ -6,7 +6,7 @@ notification_html = """
 </br>
 </br>
 <hr>
-<p><a href="{login_url}">Kliknutím zde si můžete zkontrolovat Vaše aktuální průměry</a></p>
+<p><a href="{login_url}">Kliknutím zde se můžete přihlásit na bakaweb.tk pro lepší přehled.</a></p>
 <p>Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů pro uživatele {name} přes server bakaweb.tk.
 Pro odhlášení klikňete <a href="{unsubscribe_url}">zde</a></p>.
 """
@@ -17,7 +17,7 @@ notification_plain = """
 \n
 \n
 ----------------\n
-Zde si můžete zkontrolovat Vaše aktuální průměry\n
+Kliknutím zde se můžete přihlásit na bakaweb.tk pro lepší přehled:\n
 {login_url}\n
 \n
 Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů pro uživatele {name} přes server bakaweb.tk.
