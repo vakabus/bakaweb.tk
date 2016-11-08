@@ -180,7 +180,7 @@ def dashboard_content(request):
             'subjects': subjects,
         }
         return render(request, 'bakalari/dashboard_content.html', context)
-    except BaseException as e:
+    except Exception as e:
         logger.exception("Failed to serve dashboard content.")
         return render(request, 'bakalari/error.html')
 
@@ -241,7 +241,7 @@ def subject_content(request, subject_name):
             'subject': subject,
         }
         return render(request, 'bakalari/subject_detail.html', context)
-    except BaseException as e:
+    except Exception as e:
         logger.exception("Failed to server subject detail")
         return render(request, 'bakalari/error.html')
 
