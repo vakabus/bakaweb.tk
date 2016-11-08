@@ -8,7 +8,7 @@ notification_html = """
 <hr>
 <p><a href="{login_url}">Kliknutím zde se můžete přihlásit na bakaweb.tk pro lepší přehled.</a></p>
 <p>Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů pro uživatele {name} přes server bakaweb.tk.
-Pro odhlášení klikňete <a href="{unsubscribe_url}">zde</a></p>.
+Pro odhlášení klikňete <a href="{unsubscribe_url}">zde</a>.</p>
 """
 
 notification_plain = """
