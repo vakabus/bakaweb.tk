@@ -59,7 +59,6 @@ def notify_email(client: BakaClient, subscription: NotificationSubscription, fee
     resp.raise_for_status()
 
 
-logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -70,7 +69,7 @@ class Command(BaseCommand):
         print('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
-            print('Checking news for {}'.format(subscription.name))
+            logger.info('Checking news for {}'.format(subscription.name))
             try:
                 client = BakaClient(subscription.url)
                 client.login(subscription.perm_token)
@@ -89,7 +88,7 @@ class Command(BaseCommand):
                     try:
                         notify(client, subscription, n)
                     except RequestException:
-                        print('Failed to send notification...')
+                        logger.info('Failed to send notification...')
                 subscription.last_check = datetime.now()
                 subscription.save()
             except Exception:
@@ -97,4 +96,4 @@ class Command(BaseCommand):
 
             logger.info('One second sleep...')
             time.sleep(1)
-        print('[CHECK ENDED]')
+        logger.info('[CHECK ENDED]')
