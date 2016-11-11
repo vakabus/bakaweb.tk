@@ -1,6 +1,6 @@
 import json
-import traceback
 from datetime import datetime
+import time
 
 import logging
 
@@ -69,8 +69,8 @@ class Command(BaseCommand):
         logger.info('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
+            logger.info('Checking news for {}'.format(subscription.name))
             try:
-                logger.info('Checking news for ', subscription.name)
                 client = BakaClient(subscription.url)
                 client.login(subscription.perm_token)
 
@@ -93,4 +93,7 @@ class Command(BaseCommand):
                 subscription.save()
             except Exception:
                 logger.exception('Failed...')
+
+            logger.info('One second sleep...')
+            time.sleep(1)
         print('[CHECK ENDED]')
