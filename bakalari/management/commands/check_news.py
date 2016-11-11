@@ -18,8 +18,6 @@ from bakalari.models import NotificationSubscription
 
 import bleach
 
-from pybakalib.errors import BakalariError
-
 
 def notify(client, subscription, feed_item):
     {
@@ -66,7 +64,7 @@ class Command(BaseCommand):
     help = 'Runs BakaNotifications check'
 
     def handle(self, *args, **options):
-        print('[BAKANEWS CHECK STARTED]')
+        logger.info('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
             logger.info('Checking news for {}'.format(subscription.name))
