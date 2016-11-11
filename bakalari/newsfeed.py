@@ -4,6 +4,7 @@ import bleach as bleach
 from django.contrib.syndication import views
 from django.core.urlresolvers import reverse
 from pybakalib.client import BakaClient
+from pybakalib.errors import BakalariModuleNotImplementedError
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class Feed(list):
                     text,
                     message.date
                 ))
-        except NotImplementedError:
+        except BakalariModuleNotImplementedError:
             logger.warning('Server does not support module PRIJATE')
 
         try:
@@ -39,7 +40,7 @@ class Feed(list):
                                  tags=['b', 'u', 'i', 'a', 'br']),
                     notice.date
                 ))
-        except NotImplementedError:
+        except BakalariModuleNotImplementedError:
             logger.warning('Server does not support module NASTENKA')
 
         try:
@@ -51,7 +52,7 @@ class Feed(list):
                         ', '.join((x for x in (mark.caption, mark.description) if x is not None)),
                         mark.date
                     ))
-        except NotImplementedError:
+        except BakalariModuleNotImplementedError:
             logger.warning('Server does not support module ZNAMKY')
 
         self.sort(key=lambda x: x.date, reverse=True)

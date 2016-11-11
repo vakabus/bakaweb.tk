@@ -91,6 +91,6 @@ class Command(BaseCommand):
                         logger.info('Failed to send notification...')
                 subscription.last_check = datetime.now()
                 subscription.save()
-            except BakalariError as e:
+            except Exception:
                 logger.exception('Failed...')
         print('[CHECK ENDED]')
