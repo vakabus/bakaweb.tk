@@ -67,10 +67,10 @@ class Command(BaseCommand):
     help = 'Runs BakaNotifications check'
 
     def handle(self, *args, **options):
-        logger.info('[BAKANEWS CHECK STARTED]')
+        print('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.all()
         for subscription in subscriptions:
-            logger.info('Checking news for {}'.format(subscription.name))
+            print('Checking news for {}'.format(subscription.name))
             try:
                 client = BakaClient(subscription.url)
                 client.login(subscription.perm_token)
@@ -89,7 +89,7 @@ class Command(BaseCommand):
                     try:
                         notify(client, subscription, n)
                     except RequestException:
-                        logger.info('Failed to send notification...')
+                        print('Failed to send notification...')
                 subscription.last_check = datetime.now()
                 subscription.save()
             except Exception:
