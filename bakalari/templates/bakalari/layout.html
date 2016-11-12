@@ -24,6 +24,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.js"></script>
     <![endif]-->
 
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/static/icons/manifest.json">
+    <link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#fefefe">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico">
+    <meta name="msapplication-config" content="/static/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
     {% block head%}{% endblock %}
 </head>
 <body>
@@ -98,6 +107,8 @@
             <script>
                 var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}
 
+
+
             </script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
@@ -142,6 +153,8 @@
                 document.getElementById('mailto-link').href = link;
                 }
                 //-->
+
+
 
             </script>
         </div>
