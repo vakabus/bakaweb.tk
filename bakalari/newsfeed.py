@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 import bleach as bleach
@@ -94,4 +95,9 @@ class RSSFeed(views.Feed):
         return obj.link
 
     def item_guid(self, obj):
-        return str(obj.date)
+        return hashlib.md5('{}{}{}'.format(
+            str(obj.date),
+            obj.title,
+            obj.text
+        ).encode()).hexdigest()
+
