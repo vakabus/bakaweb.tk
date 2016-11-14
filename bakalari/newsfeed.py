@@ -92,3 +92,6 @@ class RSSFeed(views.Feed):
 
     def link(self, obj):
         return obj.link
+
+    def item_guid(self, obj):
+        return str(obj.date)
