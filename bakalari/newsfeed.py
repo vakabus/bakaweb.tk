@@ -94,6 +94,8 @@ class RSSFeed(views.Feed):
     def link(self, obj):
         return obj.link
 
+    item_guid_is_permalink = False
+
     def item_guid(self, obj):
         return hashlib.md5('{}{}{}'.format(
             str(obj.date),
