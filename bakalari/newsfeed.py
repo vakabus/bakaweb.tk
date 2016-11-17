@@ -4,6 +4,8 @@ import logging
 import bleach as bleach
 from django.contrib.syndication import views
 from django.core.urlresolvers import reverse
+from django.utils.feedgenerator import Rss201rev2Feed
+
 from pybakalib.client import BakaClient
 from pybakalib.errors import BakalariModuleNotImplementedError
 
@@ -68,6 +70,7 @@ class FeedItem(object):
 
 
 class RSSFeed(views.Feed):
+    feed_type = Rss201rev2Feed
     title = 'Novinky z Bakalářů'
     description = 'Nové známky a zprávy...'
 
