@@ -4,7 +4,7 @@ import logging
 import bleach as bleach
 from django.contrib.syndication import views
 from django.core.urlresolvers import reverse
-from django.utils.feedgenerator import Rss201rev2Feed
+from django.utils.feedgenerator import Rss201rev2Feed, rfc2822_date
 
 from pybakalib.client import BakaClient
 from pybakalib.errors import BakalariModuleNotImplementedError
@@ -69,8 +69,24 @@ class FeedItem(object):
         self.date = date
 
 
+class CustomFeed(Rss201rev2Feed):
+    def add_root_elements(self, handler):
+        handler.addQuickElement("title", self.feed['title'])
+        handler.addQuickElement("link", self.feed['link'])
+        handler.addQuickElement("description", self.feed['description'])
+        if self.feed['language'] is not None:
+            handler.addQuickElement("language", self.feed['language'])
+        for cat in self.feed['categories']:
+            handler.addQuickElement("category", cat)
+        if self.feed['feed_copyright'] is not None:
+            handler.addQuickElement("copyright", self.feed['feed_copyright'])
+        handler.addQuickElement("lastBuildDate", rfc2822_date(self.latest_post_date()))
+        if self.feed['ttl'] is not None:
+            handler.addQuickElement("ttl", self.feed['ttl'])
+
+
 class RSSFeed(views.Feed):
-    feed_type = Rss201rev2Feed
+    feed_type = CustomFeed
     title = 'Novinky z Bakalářů'
     description = 'Nové známky a zprávy...'
 
