@@ -74,6 +74,10 @@ class CustomFeed(Rss201rev2Feed):
         handler.addQuickElement("title", self.feed['title'])
         handler.addQuickElement("link", self.feed['link'])
         handler.addQuickElement("description", self.feed['description'])
+        """
+        if self.feed['feed_url'] is not None:
+            handler.addQuickElement("atom:link", None, {"rel": "self", "href": "?"})
+        """
         if self.feed['language'] is not None:
             handler.addQuickElement("language", self.feed['language'])
         for cat in self.feed['categories']:

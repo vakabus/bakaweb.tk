@@ -52,12 +52,13 @@ def login_handle(request, url, username=None, password=None, perm_token:str=None
             username = perm_token[7:perm_token.find('*', 7)]
         else:
             client.login(username, password)
+
+        account = client.get_module('login')
     except (BakalariError, LoginError):
         logger.exception('Login failed...')
         request.session['login_failed'] = True
         return redirect('index')
 
-    account = client.get_module('login')
     request.session['url'] = url
     request.session['token'] = client.token_perm
     request.session['name'] = account.name
