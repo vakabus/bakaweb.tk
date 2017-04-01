@@ -84,6 +84,8 @@ class Command(BaseCommand):
                     if n.date < subscription.last_check:
                         break
                     try:
+                        if '5.A' in n.title or '5.B' in n.title or '1.G' in n.title:
+                            continue
                         notify(client, subscription, n)
                     except RequestException:
                         logger.info('Failed to send notification...')
