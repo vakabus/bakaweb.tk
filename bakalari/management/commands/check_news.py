@@ -35,7 +35,7 @@ def notify_pushbullet(client: BakaClient, subscription: NotificationSubscription
     body = {
         'type': 'note',
         'title': feed_item.title,
-        'body': bleach.clean(feed_item.text.replace('<br>', '\n'))
+        'body': bleach.clean(feed_item.text.replace('<br>', '\n'), strip=True)
     }
     headers = {
         'Access-Token': api_key,

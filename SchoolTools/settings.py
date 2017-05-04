@@ -23,7 +23,7 @@ SECRET_KEY = 'ifc6nuidj!+vs46__jz_zfbk0z5=sk*h*!9hun5yro)iq(21&d'
 ENCRYPTION_KEY = b'\xf69\x0f\xedt?5n\x15\xe9\x9c\x9d+\xf09\x1b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.192.26']
 

@@ -3,13 +3,17 @@ import logging
 
 import bleach as bleach
 from django.contrib.syndication import views
-from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Rss201rev2Feed, rfc2822_date
 
 from pybakalib.client import BakaClient
 from pybakalib.errors import BakalariModuleNotImplementedError
 
 logger = logging.getLogger(__name__)
+
+
+def clean_html(text):
+    text = text.replace('</p>', '<br>')
+    return bleach.clean(text, tags=['b', 'u', 'i', 'a', 'br'], strip=True)
 
 
 class Feed(list):
@@ -19,12 +23,11 @@ class Feed(list):
         try:
             messages = client.get_module('prijate')
             for message in messages:
-                text = bleach.clean('\n'.join((x for x in (message.title, message.text) if x is not None)),
-                                    tags=['b', 'u', 'i', 'a', 'br'])
+                text = clean_html('\n'.join((x for x in (message.title, message.text) if x is not None)))
                 if message.has_attachment:
-                    text += '</br></br>-------------------</br>Odesílatel ke zprávě připojil přílohu.' \
+                    text += '<br><br>-------------------<br>Odesílatel ke zprávě připojil přílohu.' \
                             ' Pro její zobrazení se prosím přihlašte do webového rozhraní Bakalářů.'
-                    text += '</br><a href="{}">{}</a>'.format(client.url, client.url)
+                    text += '<br><a href="{}">{}</a>'.format(client.url, client.url)
 
                 self.append(FeedItem(
                     ''.join(('Zpráva od ', message.sender)),
@@ -39,8 +42,7 @@ class Feed(list):
             for notice in noticeboard:
                 self.append(FeedItem(
                     ''.join(('Zpráva od ', notice.sender)),
-                    bleach.clean('\n'.join((x for x in (notice.title, notice.text) if x is not None)),
-                                 tags=['b', 'u', 'i', 'a', 'br']),
+                    clean_html('\n'.join((x for x in (notice.title, notice.text) if x is not None))),
                     notice.date
                 ))
         except BakalariModuleNotImplementedError:
