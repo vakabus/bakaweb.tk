@@ -11,7 +11,7 @@ notification_html = """
 Pro odhlášení klikněte <a href="{unsubscribe_url}">zde</a>.</p>
 """
 
-notification_plain = """client 
+notification_plain = """
 {title}\n
 {text}\nclient
 \n
@@ -32,7 +32,7 @@ def notification_email_data(email: str, name: str, feed_item: object, unsubscrib
             average=str(average),
             name=name,
             title=feed_item.title,
-            text=bleach.clean(feed_item.text.replace('<br>', '\n').replace('</br>','\n')),
+            text=bleach.clean(feed_item.text),
             unsubscribe_url=unsubscribe_url,
             login_url=login_url
         )
@@ -41,7 +41,7 @@ def notification_email_data(email: str, name: str, feed_item: object, unsubscrib
         'from': 'Bakaweb.tk <noreply@bakaweb.tk>',
         'to': email,
         'subject': '[BAKAWEB.TK] {}'.format(feed_item.title),
-        'text': render(notification_plain),
+        'text': render(notification_plain).replace('<br>', '\n').replace('</br>','\n'),
         'html': render(notification_html)
     }
     return data
