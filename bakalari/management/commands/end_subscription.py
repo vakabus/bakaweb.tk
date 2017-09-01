@@ -69,7 +69,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info('Odstraňuji odběr pro {}'.format(options['name']))
 
-        fi = FeedItem('Ukončení odběru zpráv z bakaweb.tk', 'Díky za používání služeb mého webu. Doufám, že to bylo k něčemu.<br><br>Hodně štěstí do dalších studií,<br>Vašek Šraier', None)
+        fi = FeedItem('Ukončení odběru zpráv z bakaweb.tk', 'Díky za používání služeb mého webu. Doufám, že to bylo k něčemu.</br></br>Hodně štěstí do dalších studií,</br>Vašek Šraier', None)
 
         subscriptions = NotificationSubscription.objects.filter(name=options['name'])
         for sub in subscriptions:

@@ -8,12 +8,12 @@ notification_html = """
 <hr>
 <p><a href="{login_url}">Kliknutím zde se můžete přihlásit na bakaweb.tk pro lepší přehled.</a></p>
 <p>Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů pro uživatele {name} přes server bakaweb.tk.
-Pro odhlášení klikňete <a href="{unsubscribe_url}">zde</a>.</p>
+Pro odhlášení klikněte <a href="{unsubscribe_url}">zde</a>.</p>
 """
 
-notification_plain = """
+notification_plain = """client 
 {title}\n
-{text}\n
+{text}\nclient
 \n
 \n
 ----------------\n
@@ -21,7 +21,7 @@ Kliknutím zde se můžete přihlásit na bakaweb.tk pro lepší přehled:\n
 {login_url}\n
 \n
 Tento email Vám byl doručen, protože jste přihlášeni k odběru novinek z Bakalářů pro uživatele {name} přes server bakaweb.tk.
-Pro odhlášení klikňete zde:\n
+Pro odhlášení klikněte zde:\n
 {unsubscribe_url}
 """
 
@@ -32,7 +32,7 @@ def notification_email_data(email: str, name: str, feed_item: object, unsubscrib
             average=str(average),
             name=name,
             title=feed_item.title,
-            text=bleach.clean(feed_item.text.replace('<br>', '\n')),
+            text=bleach.clean(feed_item.text.replace('<br>', '\n').replace('</br>','\n')),
             unsubscribe_url=unsubscribe_url,
             login_url=login_url
         )
