@@ -23,7 +23,7 @@ def notify(subscription, feed_item):
     {
         'pushbullet': notify_pushbullet,
         'email': notify_email,
-    }.get(subscription.contact_type, notify_none)(client, subscription, feed_item)
+    }.get(subscription.contact_type, notify_none)(subscription, feed_item)
 
 
 def notify_none(subscription: NotificationSubscription, feed_item):
