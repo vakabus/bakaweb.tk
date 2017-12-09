@@ -3,7 +3,7 @@ import urllib
 from datetime import datetime
 
 import requests
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
