@@ -66,7 +66,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('[BAKANEWS CHECK STARTED]')
-        subscriptions = NotificationSubscription.objects.order_by('-last_check')
+        subscriptions = NotificationSubscription.objects.order_by('+last_check')
         for subscription in subscriptions:
             logger.info('Checking news for {}'.format(subscription.name))
             try:
