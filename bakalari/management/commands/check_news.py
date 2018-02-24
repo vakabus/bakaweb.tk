@@ -14,7 +14,7 @@ from bakalari import views
 from bakalari.newsfeed import Feed
 from pybakalib.client import BakaClient
 
-from bakalari.models import NotificationSubscription
+from bakalari.models import NotificationSubscription, Session
 
 import bleach
 
@@ -49,7 +49,8 @@ def notify_email(client: BakaClient, subscription: NotificationSubscription, fee
     email = subscription.contact_id
     url = 'https://api.mailgun.net/v3/mg.bakaweb.tk/messages'
     unsubscribe_url = 'https://www.bakaweb.tk{}?unsubscribe=1&email={}'.format(str(reverse_lazy('register_email')), email)
-    login_url = views.login_perm_create(subscription.url, subscription.perm_token)
+    user = Session(url=subscription.url, perm_token=subscription.perm_token)
+    login_url = user.get_login_link()
 
     data = email_data.notification_email_data(email, subscription.name, feed_item, unsubscribe_url, None, login_url)
 
