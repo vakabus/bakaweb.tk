@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_base_context(request):
-    user: Session = request.session['user']
+    user = request.session['user']
     context = {
         'login_failed': bool(request.session.get('login_failed', False)),
         'logged_in': False if user is None else user.is_logged_in(),
@@ -218,7 +218,7 @@ def notifications(request):
     if 'user' not in request.session:
         return redirect('index')
 
-    user: Session = request.session['user']
+    user = request.session['user']
     context = get_base_context(request)
     context.update({
         'url': urllib.parse.quote(user.url),
