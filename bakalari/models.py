@@ -82,7 +82,7 @@ class Session(SessionBase):
         def prep(s):
             return s.replace('|', "?%")
 
-        s = "{}|{}".format(prep(self.url), prep(self.perm_token))
+        s = "{}|{}".format(prep(self.url), prep(self.token))
         return 'https://www.bakaweb.tk/login/?d=' + urllib.parse.quote(encrypt(s))
 
     @staticmethod
