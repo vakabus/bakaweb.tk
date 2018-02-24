@@ -1,122 +1,106 @@
 import json
+import logging
 import urllib
 from datetime import datetime
+from functools import wraps
 
 import requests
-from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
-# Create your views here.
+from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from requests import RequestException
 
-from bakalari.crypto import decrypt, encrypt
-from bakalari.models import NotificationSubscription, LogSubject, LogUser
-from pybakalib.client import BakaClient
-from pybakalib.errors import LoginError, BakalariError
-
 from bakalari import newsfeed
 from bakalari.forms import LoginForm
-
-import logging
+from bakalari.models import NotificationSubscription, Session, LogUser2, LogSubject2
 
 logger = logging.getLogger(__name__)
 
 
 def get_base_context(request):
+    user: Session = request.session['user']
     context = {
         'login_failed': bool(request.session.get('login_failed', False)),
-        'logged_in': 'token' in request.session,
+        'logged_in': False if user is None else user.is_logged_in(),
         'account': {
-            'name': request.session.get('name', ''),
-            'school': request.session.get('school', ''),
-            'username': request.session.get('username', ''),
-            'password': request.session.get('password', ''),
-            'login_url': urllib.parse.urljoin(request.session.get('url', ''), 'login.aspx')
+            'name': '' if user is None else user.real_name,
+            'school': '' if user is None else user.school_name,
+            'username': '' if user is None else user.username,
+            'password': '' if user is None else user.password,
+            'login_url': urllib.parse.urljoin('' if user is None else user.url, 'login.aspx')
         }
     }
-    if not context['logged_in']:
+    if not user.is_logged_in():
         context['login_form'] = LoginForm()
     return context
 
+def log(request_handler):
 
-def login_handle(request, url, username=None, password=None, perm_token:str=None):
-    url = url.replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
-    client = BakaClient(url)
-    try:
-        if perm_token is not None:
-            client.login(perm_token)
-            username = perm_token[7:perm_token.find('*', 7)]
-        else:
-            client.login(username, password)
+    @wraps(request_handler)
+    def wrapper(request, *args, **kwargs):
+        if request is not None and request.session is not None and 'user' in request.session:
+            user = request.session['user']
+            if not user.is_logged_in():
+                return request_handler(request, *args, **kwargs)
 
-        account = client.get_module('login')
-    except (BakalariError, LoginError):
-        logger.exception('Login failed...')
+            userid = LogUser2.get_user_id(user.username, user.password)
+            logusers = LogUser2.objects.filter(user_id=userid)
+            if len(logusers) > 0:
+                loguser = logusers[0]
+            else:
+                loguser = LogUser2(user_id=userid)
+
+            if request.path == '/dashboard/content':
+                loguser.dashboard_count += 1
+            if '/subject/content/' in request.path:
+                loguser.subject_count += 1
+                subject = LogSubject2.objects.filter(subject=kwargs['subject_name'])
+                if len(subject) > 0:
+                    subject[0].count += 1
+                    subject[0].save()
+                else:
+                    LogSubject2(subject=kwargs['subject_name'], count=1).save()
+
+            loguser.school = user.school_name
+            loguser.save()
+
+        return request_handler(request, *args, **kwargs)
+
+    return wrapper
+
+
+def login_handle(request, url, username=None, password=None, perm_token: str = None):
+    user = Session(url=url, username=username, password=password, perm_token=perm_token)
+    user.login()
+    if not user.is_logged_in():
         request.session['login_failed'] = True
         return redirect('index')
-
-    request.session['url'] = url
-    request.session['token'] = client.token_perm
-    request.session['name'] = account.name
-    request.session['school'] = account.school
-    request.session['password'] = password
-    request.session['username'] = username
-
-    # Logging
-    users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
-    if len(users) > 0:
-        users[0].login_count += 1
-        users[0].save()
     else:
-        LogUser(real_name=request.session['name'], url=request.session['url'],
-                username=request.session['username'], login_count=1).save()
-
-    return redirect('dashboard')
-
-
-def login_perm_create(url: str, perm_token: str) -> str:
-    def prep(s):
-        return s.replace('|', "?%")
-
-    s = "{}|{}".format(prep(url), prep(perm_token))
-    return 'https://www.bakaweb.tk/login/?d=' + urllib.parse.quote(encrypt(s))
-
-
-def login_perm_parse(b64: str) -> tuple:
-    def p(s):
-        return s.replace('?%', '|')
-
-    s = decrypt(b64)
-    r = s.split('|')
-    return p(r[0]), p(r[1])
+        request.session['user'] = user
+        return redirect('dashboard')
 
 
 def login(request):
-    if 'token' in request.session:
+    if 'user' in request.session and request.session['user'].is_logged_in():
         return redirect('dashboard')
 
     if request.method == 'GET':
         if 'd' in request.GET:
-            try:
-                url, perm_token = login_perm_parse(request.GET['d'])
-            except Exception:
-                logger.exception("Failed to parse perm login data...")
-                return redirect('index')
-            return login_handle(request, url, None, None, perm_token=perm_token)
-
-        return redirect('index')
+            user = Session.login_by_link(request.GET['d'])
+            request.session['user'] = user
+        return redirect('dashboard')
     else:
         form = LoginForm(request.POST)
         if form.is_valid():
-            return login_handle(request,
-                                form.cleaned_data['url'],
-                                form.cleaned_data['username'],
-                                form.cleaned_data['password']
-                                )
+            user = Session(username=form.cleaned_data['username'],
+                           password=form.cleaned_data['password'],
+                           url=form.cleaned_data['url'])
+            user.login()
+            request.session['user'] = user
+            return redirect('dashboard')
         else:
             request.session['login_failed'] = True
             return redirect('index')
@@ -128,16 +112,19 @@ def logout(request):
 
 
 def index(request):
-    if 'token' in request.session and 'force' not in request.GET:
-        return redirect('dashboard')
-    context = get_base_context(request)
+    if 'user' not in request.session:
+        request.session['user'] = Session()
 
+    if request.session['user'].is_logged_in() and 'force' not in request.GET:
+        return redirect('dashboard')
+
+    context = get_base_context(request)
     request.session['login_failed'] = False
     return render(request, 'bakalari/index.html', context=context)
 
 
 def dashboard(request):
-    if 'token' not in request.session:
+    if 'user' not in request.session or not request.session['user'].is_logged_in():
         return redirect('index')
 
     context = get_base_context(request)
@@ -150,36 +137,18 @@ def dashboard(request):
 
 @cache_page(60 * 5)
 @vary_on_cookie
+@log
 def dashboard_content(request):
     try:
-        if 'token' not in request.session:
+        if 'user' not in request.session or not request.session['user'].is_logged_in():
             return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
-        # Logging
-        users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
-        if len(users) > 0:
-            users[0].dashboard_count += 1
-            users[0].save()
-
-        client = BakaClient(request.session['url'])
-
-        try:
-            client.login(request.session['token'])
-        except LoginError as er:
-            request.session.flush()
-            request.session['login_failed'] = True
-            return HttpResponse(
-                '<script>alert("Je nejaky problem s prihlasenim."); window.location.pathname = "/"</script>')
-
-        weights = client.get_module('predvidac')
-        marks = client.get_module('znamky')
-        subjects = marks.get_all_averages(weights)
-
-        feed = newsfeed.Feed(client)
+        subjects = request.session['user'].get_subject_averages()
+        feed = newsfeed.Feed(request.session['user'].get_baka_client())
 
         context = {
-            'url': urllib.parse.quote(request.session['url']),
-            'token': urllib.parse.quote(request.session['token']),
+            'url': request.session['user'].url,
+            'token': request.session['user'].token,
             'feed': feed[:10],
             'subjects': subjects,
         }
@@ -190,7 +159,7 @@ def dashboard_content(request):
 
 
 def subject(request, subject_name):
-    if 'token' not in request.session:
+    if 'user' not in request.session:
         return redirect('index')
 
     context = get_base_context(request)
@@ -208,13 +177,17 @@ def privacy_policy(request):
 
 @cache_page(60 * 2)
 @vary_on_cookie
+@log
 def subject_content(request, subject_name):
     try:
-        if 'token' not in request.session:
+        if 'user' not in request.session:
             return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
-        client = BakaClient(request.session['url'])
-        client.login(request.session['token'])
+        user = request.session['user']
+        client = user.get_baka_client()
+
+        if client is None:
+            return HttpResponse('You must first log in...<script>window.location.pathname = "/"<script>')
 
         marks = client.get_module('znamky')
         weights = client.get_module('predvidac')
@@ -225,18 +198,6 @@ def subject_content(request, subject_name):
                 subject = s
         if subject is None:
             return HttpResponse('Subject does not exist...<script>window.location.pathname = "/"<script>')
-
-        # Logging
-        users = LogUser.objects.filter(real_name=request.session['name'], username=request.session['username'])
-        if len(users) > 0:
-            users[0].subject_count += 1
-            users[0].save()
-        s = LogSubject.objects.filter(subject=subject_name)
-        if len(s) > 0:
-            s[0].count += 1
-            s[0].save()
-        else:
-            LogSubject(subject=subject_name, count=1).save()
 
         for mark in subject.marks:
             mark.weight = mark.get_weight(weights)
@@ -250,18 +211,22 @@ def subject_content(request, subject_name):
         return render(request, 'bakalari/error.html')
 
 
+# ----------------------------------------------------------------------------------------------------------
+
+
 def notifications(request):
-    if 'token' not in request.session:
+    if 'user' not in request.session:
         return redirect('index')
 
+    user: Session = request.session['user']
     context = get_base_context(request)
     context.update({
-        'url': urllib.parse.quote(request.session['url']),
-        'token': urllib.parse.quote(request.session['token']),
+        'url': urllib.parse.quote(user.url),
+        'token': urllib.parse.quote(user.token),
         'registered': {
-            'pushbullet': NotificationSubscription.objects.filter(name=request.session['name'],
+            'pushbullet': NotificationSubscription.objects.filter(name=user.real_name,
                                                                   contact_type='pushbullet').exists(),
-            'email': NotificationSubscription.objects.filter(name=request.session['name'],
+            'email': NotificationSubscription.objects.filter(name=user.real_name,
                                                              contact_type='email').exists(),
         }
     })

@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class BakalariConfig(AppConfig):
+class Bakaweb(AppConfig):
     name = 'bakalari'
