@@ -65,6 +65,7 @@ def log(request_handler):
                     LogSubject2(subject=kwargs['subject_name'], count=1).save()
 
             loguser.school = user.school_name
+            loguser.last_seen = datetime.now()
             loguser.save()
 
         return request_handler(request, *args, **kwargs)
