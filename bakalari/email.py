@@ -67,7 +67,7 @@ se opětovně k notifikacím přihlásit přes web https://www.bakaweb.tk/.
 Problém by tím snad měl být odstraněn. Pokud ne, tak doufám, že aspoň po
 nějakou dobu Vám byla tato služba k něčemu.
 
-Za bakaweb.tk,
-Vašek Šraier"""
+Vašek Šraier
+vývojář služby bakaweb.tk"""
 
     return msg.format(failed_checks=subscription.failed_checks, name=subscription.name)
