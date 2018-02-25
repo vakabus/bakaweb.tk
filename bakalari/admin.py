@@ -4,7 +4,7 @@ from bakalari.models import NotificationSubscription, LogSubject2, LogUser2
 
 
 class NotificationSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'last_check', 'contact_type', 'contact_id', 'url')
+    list_display = ('name', 'last_check', 'contact_type', 'contact_id', 'url', 'failed_checks')
 
 
 class LogUser2Admin(admin.ModelAdmin):

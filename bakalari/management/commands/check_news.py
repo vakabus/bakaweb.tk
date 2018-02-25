@@ -10,7 +10,6 @@ from django.core.management import BaseCommand
 from django.urls import reverse_lazy
 from requests import RequestException
 
-from bakalari import views
 from bakalari.newsfeed import Feed
 from pybakalib.client import BakaClient
 
@@ -68,6 +67,36 @@ class Command(BaseCommand):
         logger.info('[BAKANEWS CHECK STARTED]')
         subscriptions = NotificationSubscription.objects.order_by('last_check')
         for subscription in subscriptions:
+            # Service termination check
+            if subscription.failed_checks > 9648:  # approx 65 days
+                if subscription.contact_type == 'email':
+                    resp = requests.post(
+                        'https://api.mailgun.net/v3/mg.bakaweb.tk/messages',
+                        data={
+                            'from': 'Bakaweb.tk <noreply@bakaweb.tk>',
+                            'to': subscription.contact_id,
+                            'subject': '[BAKAWEB.TK] Přerušení odběru novinek',
+                            'text': email_data.termination_message(subscription)
+                        },
+                        auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b')
+                    )
+                    resp.raise_for_status()
+                elif subscription.contact_type == 'pushbullet':
+                    body = {
+                        'type': 'note',
+                        'title': "[BAKAWEB.TK] Přerušení odběru novinek",
+                        'body': email_data.termination_message(subscription)
+                    }
+                    headers = {
+                        'Access-Token': subscription.contact_id,
+                        'Content-Type': 'application/json'
+                    }
+                    resp = requests.post('https://api.pushbullet.com/v2/pushes', headers=headers, data=json.dumps(body))
+                    resp.raise_for_status()
+                print("Notification subscription terminated for {}".format(subscription.name))
+                subscription.delete()
+                continue
+
             logger.info('Checking news for {}'.format(subscription.name))
             try:
                 client = BakaClient(subscription.url)
@@ -85,13 +114,17 @@ class Command(BaseCommand):
                     if n.date < subscription.last_check:
                         break
                     try:
+                        print("Sending notification...")
                         notify(client, subscription, n)
                     except RequestException:
                         logger.info('Failed to send notification...')
                 subscription.last_check = datetime.now()
+                subscription.failed_checks = 0
                 subscription.save()
             except Exception:
                 logger.exception('Failed...')
+                subscription.failed_checks += 1
+                subscription.save()
 
             logger.info('One second sleep...')
             time.sleep(1)

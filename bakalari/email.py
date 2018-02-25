@@ -1,5 +1,7 @@
 import bleach
 
+from bakalari.models import NotificationSubscription
+
 notification_html = """
 <h3>{title}</h3>
 <p>{text}</p>
@@ -45,3 +47,27 @@ def notification_email_data(email: str, name: str, feed_item: object, unsubscrib
         'html': render(notification_html)
     }
     return data
+
+
+def termination_message(subscription: NotificationSubscription) -> str:
+    msg = """Dobrý den,
+
+protože se {failed_checks}x po sobě nepodařilo zkontrolovat novinky ze
+školních Bakalářů pro účet "{name}", nezbývá nic jiného než Váš odběr
+novinek ukončit. Pravděpodobně to je způsobeno jedním z následujících
+důvodů:
+
+1) heslo na přihlašování do Bakalářů bylo změněno
+2) školní server se přesunul na jinou adresu
+3) školní systém má dlouhodobě neplatný bezpečnostní certifikát
+4) účet byl ze školního systému odstraněn
+
+Pokud nenastal případ 4) a stále můžete školní systém používat, zkuste
+se opětovně k notifikacím přihlásit přes web https://www.bakaweb.tk/.
+Problém by tím snad měl být odstraněn. Pokud ne, tak doufám, že aspoň po
+nějakou dobu Vám byla tato služba k něčemu.
+
+Za bakaweb.tk,
+Vašek Šraier"""
+
+    return msg.format(failed_checks=subscription.failed_checks, name=subscription.name)
