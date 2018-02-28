@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bakaláři přijemněji - vážené průměry, upozoňování na novinky">
+    <meta name="description" content="Bakaláři přívětivě - vážené průměry, upozoňování na novinky">
 
-    <title>{% block title %}Bakaláři &ndash; nástroje{% endblock %}</title>
+    <title>{% block title %}Bakaweb.tk{% endblock %}</title>
 
 
     {% load staticfiles %}
@@ -24,14 +24,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.js"></script>
     <![endif]-->
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/static/icons/manifest.json">
-    <link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#fefefe">
-    <link rel="shortcut icon" href="/static/icons/favicon.ico">
-    <meta name="msapplication-config" content="/static/icons/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16" />
+    <link rel="manifest" href="/static/icons/manifest.json" />
+    <link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#fefefe" />
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" />
+    <meta name="msapplication-config" content="/static/icons/browserconfig.xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description"
+          content="BAKALÁŘI PŘÍVĚTIVĚ - Zpříjemněte si práci se systémem Bakaláři. Nechte si spočítat vážené průměry známek na všech školách nebo si nechte posílat upozornění na změny v systému." />
+    <meta name="keywords" content="Bakaláři,průměr,vážený průměr,prospěch,notifikace,známky,bakaweb" />
+    <meta name="author" content="Václav Šraier" />
 
     {% block head%}{% endblock %}
 </head>
@@ -77,7 +81,7 @@
                         <a class="pure-button" href="{% url 'dashboard' %}">Přehled</a>
                     </li>
                     <li class="nav-item">
-                        <a class="pure-button" href="{% url 'notifications' %}">BakaNotifikace</a>
+                        <a class="pure-button" href="{% url 'notifications' %}">Notifikace</a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
@@ -105,10 +109,10 @@
                 </fieldset>
             </form>
             <script>
-                var u = document.getElementById('login_url'); u.onchange = function(){if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value}
-
-
-
+                var u = document.getElementById('login_url');
+                u.onchange = function () {
+                    if (u.value.indexOf('http') != 0) u.value = 'https://' + u.value
+                }
             </script>
             {% if login_failed %}
             <p style="color: red">Přihlášení se nepodařilo</p>
@@ -136,24 +140,24 @@
                 // Random encryption key feature by Andrew Moulden, Site Engineering Ltd
                 // This code is freeware provided these four comment lines remain intact
                 // A wizard to generate this code is at http://www.jottings.com/obfuscator/
-                { coded = "RgyS5b:cgzgJ6c.5z@pgzgcfk.xw"
-                  key = "O2DwHBGjXkpcmyunYoF6gVt74NKI3lWJ0MTP1z9xRqfsvbAiEU5dCearQShZL8"
-                  shift=coded.length
-                  link=""
-                  for (i=0; i<coded.length; i++) {
-                    if (key.indexOf(coded.charAt(i))==-1) {
-                      ltr = coded.charAt(i)
-                      link += (ltr)
+                {
+                    coded = "RgyS5b:cgzgJ6c.5z@pgzgcfk.xw";
+                    key = "O2DwHBGjXkpcmyunYoF6gVt74NKI3lWJ0MTP1z9xRqfsvbAiEU5dCearQShZL8";
+                    shift = coded.length;
+                    link = "";
+                    for (i = 0; i < coded.length; i++) {
+                        if (key.indexOf(coded.charAt(i)) == -1) {
+                            ltr = coded.charAt(i);
+                            link += (ltr)
+                        }
+                        else {
+                            ltr = (key.indexOf(coded.charAt(i)) - shift + key.length) % key.length
+                            link += (key.charAt(ltr))
+                        }
                     }
-                    else {
-                      ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
-                      link += (key.charAt(ltr))
-                    }
-                  }
-                document.getElementById('mailto-link').href = link;
+                    document.getElementById('mailto-link').href = link;
                 }
                 //-->
-
 
 
             </script>
