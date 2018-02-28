@@ -5,12 +5,13 @@ from bakalari.models import NotificationSubscription, LogSubject2, LogUser2
 
 class NotificationSubscriptionAdmin(admin.ModelAdmin):
     list_display = ('name', 'last_check', 'contact_type', 'contact_id', 'url', 'failed_checks')
-    list_filter = ('name', 'last_check', 'contact_type', 'contact_id', 'url', 'failed_checks')
+    list_filter = ('last_check', 'contact_type', 'contact_id', 'url', 'failed_checks')
 
 
 class LogUser2Admin(admin.ModelAdmin):
     list_display = ('user_id', 'school', 'dashboard_count', 'subject_count', 'last_seen')
-    list_filter = ('user_id', 'school', 'dashboard_count', 'subject_count', 'last_seen')
+    list_filter = ('school', 'dashboard_count', 'subject_count', 'last_seen')
+
 
 class LogSubject2Admin(admin.ModelAdmin):
     list_display = ('subject', 'count')
