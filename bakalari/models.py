@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import PBKDF2PasswordHasher
 from django.db import models
 
 from bakalari.crypto import encrypt, decrypt
+from bakalari.redis_cache import RedisCache
 from pybakalib.client import BakaClient
 from pybakalib.errors import BakalariError, LoginError
 
@@ -62,8 +63,7 @@ class Session(SessionBase):
         self.logged_in = False
 
     def login(self):
-        url = self.url.replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
-        client = BakaClient(url)
+        client = self.get_baka_client()
         try:
             if self.token is None:
                 client.login(self.username, self.password)
@@ -101,8 +101,10 @@ class Session(SessionBase):
         return self.logged_in
 
     def get_baka_client(self) -> BakaClient:
-        client = BakaClient(self.url)
-        client.login(self.token)
+        url = self.url.replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
+        client = BakaClient(url, cache=RedisCache())
+        if self.token is not None:
+            client.login(self.token)
         return client
 
     def get_subject_averages(self):

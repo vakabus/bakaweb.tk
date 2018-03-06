@@ -37,6 +37,7 @@ def get_base_context(request):
         context['login_form'] = LoginForm()
     return context
 
+
 def log(request_handler):
 
     @wraps(request_handler)

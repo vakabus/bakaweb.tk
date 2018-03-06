@@ -11,6 +11,7 @@ from django.urls import reverse_lazy
 from requests import RequestException
 
 from bakalari.newsfeed import Feed
+from bakalari.redis_cache import RedisCache
 from pybakalib.client import BakaClient
 
 from bakalari.models import NotificationSubscription, Session
@@ -99,7 +100,7 @@ class Command(BaseCommand):
 
             logger.info('Checking news for {}'.format(subscription.name))
             try:
-                client = BakaClient(subscription.url)
+                client = BakaClient(subscription.url, cache=RedisCache())
                 client.login(subscription.perm_token)
 
                 # Update saved details

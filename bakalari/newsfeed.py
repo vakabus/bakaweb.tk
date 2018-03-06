@@ -5,6 +5,7 @@ import bleach as bleach
 from django.contrib.syndication import views
 from django.utils.feedgenerator import Rss201rev2Feed, rfc2822_date
 
+from bakalari.redis_cache import RedisCache
 from pybakalib.client import BakaClient
 from pybakalib.errors import BakalariModuleNotImplementedError
 
@@ -97,7 +98,7 @@ class RSSFeed(views.Feed):
     description = 'Nové známky a zprávy...'
 
     def get_object(self, request, *args, **kwargs):
-        client = BakaClient(request.GET['url'])
+        client = BakaClient(request.GET['url'], cache=RedisCache())
         client.login(request.GET['token'])
         return Feed(client)
 
