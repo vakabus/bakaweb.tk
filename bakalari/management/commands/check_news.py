@@ -121,7 +121,7 @@ class Command(BaseCommand):
                         logger.info('Failed to send notification...')
 
                 # We need to store the latest time the server reports, not server local time to prevent issues caused by different time configurations
-                subscription.last_check = max(map(news, lambda n: n.date)) if len(news) > 0 else datetime.now()
+                subscription.last_check = max(map(lambda n: n.date, news)) if len(news) > 0 else datetime.now()
                 subscription.failed_checks = 0
                 subscription.save()
             except Exception:
