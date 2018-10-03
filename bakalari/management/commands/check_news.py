@@ -115,11 +115,13 @@ class Command(BaseCommand):
                     if n.date < subscription.last_check:
                         break
                     try:
-                        print("Sending notification...")
+                        logger.info("Sending notification...")
                         notify(client, subscription, n)
                     except RequestException:
                         logger.info('Failed to send notification...')
-                subscription.last_check = datetime.now()
+
+                # We need to store the latest time the server reports, not server local time to prevent issues caused by different time configurations
+                subscription.last_check = max(map(news, lambda n: n.date)) if len(news) > 0 else datetime.now()
                 subscription.failed_checks = 0
                 subscription.save()
             except Exception:
