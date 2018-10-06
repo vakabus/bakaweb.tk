@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 import logging
@@ -66,8 +66,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('[BAKANEWS CHECK STARTED]')
-        logger.error("Somethings seriously wrong. The check is forcefully disabled.")
-        return
+        #logger.error("Somethings seriously wrong. The check is forcefully disabled.")
+        #return
 
 
         subscriptions = NotificationSubscription.objects.order_by('last_check')
@@ -120,12 +120,13 @@ class Command(BaseCommand):
                         break
                     try:
                         logger.info("Sending notification...")
+                        raise RequestException()
                         notify(client, subscription, n)
                     except RequestException:
                         logger.info('Failed to send notification...')
 
                 # We need to store the latest time the server reports, not server local time to prevent issues caused by different time configurations
-                subscription.last_check = max(map(lambda n: n.date, news)) if len(news) > 0 else datetime.now()
+                subscription.last_check = max(map(lambda n: n.date, news))+timedelta(seconds=60) if len(news) > 0 else datetime.now()
                 subscription.failed_checks = 0
                 subscription.save()
             except Exception:
