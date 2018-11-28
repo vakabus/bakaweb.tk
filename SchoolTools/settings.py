@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'SchoolTools.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/data/db.sqlite3',
+        'NAME': '/data/db.sqlite3' if not DEBUG else 'db.sqlite3',
     }
 }
 

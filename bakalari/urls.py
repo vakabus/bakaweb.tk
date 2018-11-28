@@ -26,10 +26,12 @@ urlpatterns = [
     url(r'^subject/content/(?P<subject_name>([-\w]+))$', views.subject_content, name='subject_content'),
     url(r'^subject/(?P<subject_name>([-\w]+))$', views.subject, name='subject'),
     url(r'^feed', newsfeed.RSSFeed(), name='feed'),
-    url(r'^notifications$', views.notifications, name='notifications'),
-    url(r'^register_pushbullet$', views.notifications_register_pushbullet, name='register_pushbullet'),
-    url('^register_email$', views.notifications_register_email, name='register_email'),
     url(r'^privacy_policy$', views.privacy_policy, name='privacy_policy'),
+    url(r'^project_status$', views.project_status, name='project_status'),
     url(r'^login.aspx$', views.baka_proxy),
     url(r'^', views.index, name='index'),
+
+    # url(r'^notifications$', views.notifications, name='notifications'),
+    # url(r'^register_pushbullet$', views.notifications_register_pushbullet, name='register_pushbullet'),
+    # url('^register_email$', views.notifications_register_email, name='register_email'),
 ]

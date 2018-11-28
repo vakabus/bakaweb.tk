@@ -66,8 +66,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('[BAKANEWS CHECK STARTED]')
-        #logger.error("Somethings seriously wrong. The check is forcefully disabled.")
-        #return
+        logger.error("Disabled...")
+        logger.info('[CHECK ENDED]')
+        return
 
 
         subscriptions = NotificationSubscription.objects.order_by('last_check')

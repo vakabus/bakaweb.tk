@@ -177,6 +177,11 @@ def privacy_policy(request):
     return render(request, 'bakalari/privacy.html', get_base_context(request))
 
 
+@cache_page(60 * 60 * 3)
+def project_status(request):
+    return render(request, 'bakalari/project_status.html', get_base_context(request))
+
+
 @cache_page(60 * 2)
 @vary_on_cookie
 @log

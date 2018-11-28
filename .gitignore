@@ -4,3 +4,4 @@ __pycache__/
 *.py[cod]
 local_settings.py
 *.swp
+Pipfile.lock
