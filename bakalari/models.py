@@ -6,6 +6,7 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.contrib.auth.hashers import PBKDF2PasswordHasher
 from django.db import models
 
+from SchoolTools import settings
 from bakalari.crypto import encrypt, decrypt
 from bakalari.redis_cache import RedisCache
 from pybakalib.client import BakaClient
@@ -102,7 +103,10 @@ class Session(SessionBase):
 
     def get_baka_client(self) -> BakaClient:
         url = self.url.replace('bakaweb.tk', 'bakalari.ceskolipska.cz')
-        client = BakaClient(url, cache=RedisCache())
+        if settings.DEBUG:
+            client = BakaClient(url)
+        else:
+            client = BakaClient(url, cache=RedisCache())
         if self.token is not None:
             client.login(self.token)
         return client
