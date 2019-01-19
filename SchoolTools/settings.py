@@ -19,8 +19,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ifc6nuidj!+vs46__jz_zfbk0z5=sk*h*!9hun5yro)iq(21&d'
-ENCRYPTION_KEY = b'\xf69\x0f\xedt?5n\x15\xe9\x9c\x9d+\xf09\x1b'
+try:
+    import importlib
+
+    secrets = importlib.import_module("bakaweb_secrets")
+except ImportError:
+    print("File with secrets not found, creating one from new template...")
+    with open("bakaweb_secrets.py", 'w') as f:
+        f.writelines([
+            "DJANGO_SECRET_KEY = ''\n",
+            "EMAIL_ENCRYPTION_KEY = b''\n"
+            "MAILGUN_API_KEY = ''\n"
+        ])
+    raise RuntimeError("Initialization failed, missing configuration...")
+
+SECRET_KEY = secrets.DJANGO_SECRET_KEY
+EMAIL_LINK_ENCRYPTION_KEY = secrets.EMAIL_ENCRYPTION_KEY
+MAILGUN_API_KEY = secrets.MAILGUN_API_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -125,10 +140,10 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 
-ADMINS = [('Admin', 'bakalari@vakabus.cz')]
-EMAIL_HOST = 'smtp.seznam.cz'
-EMAIL_HOST_USER = 'mail'
-EMAIL_HOST_PASSWORD = 'TxjaEgEJPnYyKHUNOhqU'
-EMAIL_PORT = 465
+ADMINS = [('Admin', '')]
+EMAIL_HOST = ''
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 0
 EMAIL_USE_TLS = True
-SERVER_EMAIL = 'mail@vakabus.cz'
+SERVER_EMAIL = ''

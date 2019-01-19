@@ -18,6 +18,8 @@ from bakalari.models import NotificationSubscription, Session
 
 import bleach
 
+from SchoolTools.settings import MAILGUN_API_KEY
+
 
 def notify(client, subscription, feed_item):
     {
@@ -54,7 +56,7 @@ def notify_email(client: BakaClient, subscription: NotificationSubscription, fee
 
     data = email_data.notification_email_data(email, subscription.name, feed_item, unsubscribe_url, None, login_url)
 
-    resp = requests.post(url, data=data, auth=('api', 'key-a45d0a0f76d9e3dce37949cc0953e81b'))
+    resp = requests.post(url, data=data, auth=('api', MAILGUN_API_KEY))
     resp.raise_for_status()
 
 

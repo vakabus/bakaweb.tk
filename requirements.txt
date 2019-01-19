@@ -1,8 +1,0 @@
-PyCrypto
-requests
-bleach
-django
-pybakalib
-xmltodict
-pytz
-redis

@@ -3,7 +3,7 @@ import base64
 from Crypto import Random
 from Crypto.Cipher import AES
 
-from SchoolTools.settings import ENCRYPTION_KEY
+from SchoolTools.settings import EMAIL_LINK_ENCRYPTION_KEY
 
 BS = 16
 
@@ -22,12 +22,12 @@ def unpad(b: bytes):
 def encrypt(text: str) -> str:
     raw = pad(text.encode())
     iv = Random.new().read(AES.block_size)
-    cipher = AES.new(ENCRYPTION_KEY, AES.MODE_CFB, iv)
+    cipher = AES.new(EMAIL_LINK_ENCRYPTION_KEY, AES.MODE_CFB, iv)
     return base64.b64encode(iv + cipher.encrypt(raw)).decode()
 
 
 def decrypt(enc_b64: str) -> str:
     enc = base64.b64decode(enc_b64)
     iv = enc[:16]
-    cipher = AES.new(ENCRYPTION_KEY, AES.MODE_CFB, iv)
+    cipher = AES.new(EMAIL_LINK_ENCRYPTION_KEY, AES.MODE_CFB, iv)
     return unpad(cipher.decrypt(enc[16:])).decode()

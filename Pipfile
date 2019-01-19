@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pycrypto = "*"
+pycryptodome = "*"
 requests = "*"
 bleach = "*"
 pybakalib = { git = "https://github.com/vakabus/pybakalib.git" }
