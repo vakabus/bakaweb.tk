@@ -207,6 +207,15 @@
 				test.description = event.target.value;
 			}
 
+			function swapQuestionsAndAnswers() {
+				for(var i = 0; i < test.questions.length; i++) {
+					var a = test.questions[i].answer;
+					test.questions[i].answer = test.questions[i].question;
+					test.questions[i].question = a;
+				}
+				load();
+			}
+
     </script>
 </head>
 <body class="editor">
@@ -225,7 +234,8 @@
 <div class="toolbar">
     <button onclick="newEditorLine()">Přidat otázku</button>
     <button onclick="load()">Odstranit prázdné řádky</button>
-    <button onclick="saveJSON(event)">Generovat test</button>
+	<button onclick="saveJSON(event)">Generovat test</button>
+	<button onclick="swapQuestionsAndAnswers()">Prohodit otázky a odpovědi</button>
 </div>
 </body>
 </html>
