@@ -1,4 +1,4 @@
-Projekt není spravován a použité závislosti obsahují bezpečnostní díry! Používejte s opatrností!
+**Projekt není spravován a použité závislosti obsahují bezpečnostní díry! Používejte s opatrností!**
 
 ---
 
