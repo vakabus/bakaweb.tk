@@ -1,3 +1,7 @@
+Projekt není spravován a použité závislosti obsahují bezpečnostní díry! Používejte s opatrností!
+
+---
+
 # bakaweb.tk webapp
 
 ## Lokalni testovaci prostredi
